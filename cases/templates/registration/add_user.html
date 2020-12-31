@@ -1,0 +1,15 @@
+{% extends "cases/base.html" %}
+{% load material_form %}
+{% block title %} Add a User | {% endblock %}
+{% block content %}
+<div id="add-user" class="container">
+    <div class="card card-panel">
+    <h3>Add a User</h3>
+    <form method="post">
+        {% csrf_token %}
+        {% form %}{% endform %}
+        <button class="btn" type="submit">Add User</button>
+    </form>
+</div>
+</div>
+{% endblock %}

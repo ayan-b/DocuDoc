@@ -1,0 +1,41 @@
+{% load static %}
+{% load material_form %}
+{% include 'material/includes/material_css.html' %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" type="image/png" href="{% static 'cases/favicon.ico' %}"/>
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>{% block title %} {% endblock %}MediDoc</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <!--Import materialize.css-->
+    {% block css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link rel="stylesheet" text="text/css" href="{% static 'cases/style.css' %}">
+    {% endblock %}
+    {% block extra_css %}
+    {% endblock %}
+</head>
+<body>
+    <header>
+        {% include 'cases/base-header.html'%}
+    </header>
+    {% block content %}
+    {% endblock content %}
+{% block javascript %}
+<script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+{% include 'material/includes/material_js.html' %}
+<script>
+    $(".dropdown-trigger").dropdown();
+</script>
+{% endblock javascript %}
+{% block extra_javascript %}
+{% endblock extra_javascript %}
+</body>

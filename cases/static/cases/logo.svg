@@ -1,0 +1,9 @@
+<?xml version="1.0" ?><!DOCTYPE svg  PUBLIC '-//W3C//DTD SVG 1.1//EN'  'http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd'><svg height="30mm" style="shape-rendering:geometricPrecision; text-rendering:geometricPrecision; image-rendering:optimizeQuality; fill-rule:evenodd; clip-rule:evenodd" version="1.1" viewBox="0 0 450 450" width="30mm" xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><defs><style type="text/css">
+   <![CDATA[
+    .fil0 {fill:#E31E24}
+    .fil4 {fill:#009846}
+    .fil2 {fill:#FEFEFE}
+    .fil3 {fill:#FEFEFE;fill-rule:nonzero}
+    .fil1 {fill:#2B2A29;fill-opacity:0.149020}
+   ]]>
+  </style></defs><g id="Layer_x0020_1"><g id="_101239405168"><circle class="fil0" cx="225" cy="225" r="225"/><path class="fil1" d="M175 444l160 -181 0 -76 -72 0 0 -72 -76 0 -1 71 -71 1 -101 116c26,71 87,125 161,141z"/><polygon class="fil2" points="115,187 115,263 187,263 187,335 262,335 262,263 335,263 335,187 263,187 263,115 187,115 186,186 "/><path class="fil3" d="M225 25c-55,0 -105,23 -141,59 -36,36 -59,86 -59,141 0,55 23,105 59,141 36,36 86,59 141,59 55,0 105,-23 141,-59 36,-36 59,-86 59,-141 0,-55 -23,-105 -59,-141 -36,-36 -86,-59 -141,-59zm-136 64c35,-34 83,-56 136,-56 53,0 101,22 136,56 34,35 56,83 56,136 0,53 -22,101 -56,136 -35,34 -83,56 -136,56 -53,0 -101,-22 -136,-56 -34,-35 -56,-83 -56,-136 0,-53 22,-101 56,-136z"/><path class="fil4" d="M225 0c-124,0 -225,101 -225,225 0,124 101,225 225,225 124,0 225,-101 225,-225 0,-124 -101,-225 -225,-225zm-141 84c36,-36 86,-59 141,-59 55,0 105,23 141,59 36,36 59,86 59,141 0,55 -23,105 -59,141 -36,36 -86,59 -141,59 -55,0 -105,-23 -141,-59 -36,-36 -59,-86 -59,-141 0,-55 23,-105 59,-141z"/></g></g></svg>

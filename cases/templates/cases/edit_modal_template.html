@@ -1,0 +1,12 @@
+{% load material_form %}
+<!-- Modal Structure -->
+<h4>Edit Comment</h4>
+<form method="POST" action="{% url 'cases:edit_comment' form.instance.pk %}" class="js-comment-update-form">
+    {% csrf_token %}
+    {{ form.media }}
+    {% form %}{% endform %}
+    <button class="btn waves-effect" type="submit" name="new-comment">
+        Edit Comment
+        <i class="material-icons right">send</i>
+    </button>
+</form>

@@ -1,0 +1,15 @@
+{% load material_form %}
+
+<div id="add-cases" class="modal bottom-sheet">
+    <div class="modal-content">
+      <h4>Add a Case</h4>
+      <form method="POST">
+        {% csrf_token %}
+        {{ add_case.media }}
+{#        {% form form=add_case%}{% endform %}#}
+          {{ add_case.as_p }}
+        <button class="btn button" type="submit">Add</button>
+          <a class="modal-close waves-effect btn-flat red white-text">Close</a>
+    </form>
+    </div>
+</div>

@@ -1,0 +1,32 @@
+{% load static %}
+<div id="file" class="file col s6 m3">
+    <div class="card">
+        <div class="card-image">
+            {% if file.is_image %}
+                <img src="{{ file.document.url }}" alt="{{ file.filename }}">
+            {% else %}
+                <img src="{% static 'cases/file.png' %}" alt="{{ file.filename }}" title="{{ file.filename }}">
+            {% endif %}
+            <form action="{% url 'cases:add_to_library' file.id %}" method="post">
+                {% csrf_token %}
+                {% if remove %}
+                <button name="remove-from-library" class="btn-floating halfway-fab waves-effect waves-light red js-remove-from-library">
+                    <i class="material-icons">remove</i>
+                </button>
+                <input type="hidden" name="remove" value="true">
+                {% else %}
+                <button name="add-to-library" class="btn-floating halfway-fab waves-effect waves-light red js-add-to-library">
+                    <i class="material-icons">add</i>
+                </button>
+                {% endif %}
+            </form>
+        </div>
+        <div class="card-content">
+            <p>{{ file.description }}</p>
+{#            <a href="{{ file.document.url }}"><i class="material-icons small blue-text">cloud_download</i></a>#}
+        </div>
+        <div class="card-action">
+            <a href="{{ file.document.url }}"><i class="material-icons small blue-text">cloud_download</i></a>
+        </div>
+    </div>
+</div>

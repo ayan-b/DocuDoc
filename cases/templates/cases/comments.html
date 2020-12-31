@@ -1,0 +1,89 @@
+<div id="comments" class="">
+    {% if group <= 2 %}
+        <div class="treatment-comments row">
+            <h3>Treatment</h3>
+            <div class="files card col s12 grey lighten-5">
+                <div class="card-title"><span><h4>Files</h4></span></div>
+                <div class="card-content">
+                {% if files.hospital %}
+                    {% for file in files.hospital %}
+                        {% include 'cases/file.html' %}
+                    {% endfor %}
+                {% else %}
+                 No files yet.
+                {% endif %}
+                </div>
+            </div>
+            <div class="comments-group card col s12 grey lighten-5">
+                <div class="card-title"><span><h4>Comments</h4></span></div>
+                <div class="card-content">
+                {% if comments.hospital %}
+                    {% for comment in comments.hospital %}
+                        {% include 'cases/comment.html' %}
+                    {% endfor %}
+                {% else %}
+                    No treatment comments yet.
+                {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if group <= 3 %}
+        <div class="prescription">
+            <h3>Prescription</h3>
+            <div class="files card col s12 grey lighten-5">
+                <div class="card-title"><span><h4>Files</h4></span></div>
+                <div class="card-content">
+                {% if files.prescription %}
+                    {% for file in files.prescription %}
+                        {% include 'cases/file.html' %}
+                    {% endfor %}
+                {% else %}
+                 No files yet.
+                {% endif %}
+                </div>
+            </div>
+            <div class="comment-group col s12 card grey lighten-5">
+                <div class="card-title"><h4>Comments</h4></div>
+                <div class="card-content">
+                    {% if comments.prescription %}
+                        {% for comment in comments.prescription %}
+                            {% include 'cases/comment.html' %}
+                        {% endfor %}
+                    {% else %}
+                        Nothing prescribed yet.
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+    {% if group != 3 %}
+        <div class="diagnosis row">
+            <h3>Diagnosis Data</h3>
+            <div class="files col s12 card grey lighten-5">
+            <div class="card-title"><span><h4>Files</h4></span></div>
+                <div class="card-content">
+                {% if files.diagnosis %}
+                    {% for file in files.diagnosis %}
+                        {% include 'cases/file.html' %}
+                    {% endfor %}
+                {% else %}
+                 No files yet.
+                {% endif %}
+                </div>
+            </div>
+            <div class="comment-group card col s12 grey lighten-5">
+                <div class="card-title"><span><h4>Comments</h4></span></div>
+                <div class="card-content">
+                    {% if comments.diagnosis %}
+                        {% for comment in comments.diagnosis %}
+                            {% include 'cases/comment.html' %}
+                        {% endfor %}
+                    {% else %}
+                        No diagnosis data yet.
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>

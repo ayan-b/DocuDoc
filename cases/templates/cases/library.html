@@ -1,0 +1,47 @@
+{% extends 'cases/base.html' %}
+{% load static %}
+{% block title %} My Library | {% endblock %}
+{% block content %}
+    <div id="library" class="library row">
+        {% if library %}
+            {% for file in library %}
+                {% with file=file.document %}
+                    {% include 'cases/file.html' %}
+                {% endwith %}
+            {% endfor %}
+        {% else %}
+            No documents in your library.
+        {% endif %}
+    </div>
+{% endblock %}
+{% block extra_javascript %}
+    <script>
+    $(function () {
+        let removeFromLibrary = function () {
+            let form = $(this).parent('form');
+            $.ajax({
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                    type: form.attr("method"),
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.form_is_valid) {
+                            M.toast({html: 'Removed from library!'});
+                            setTimeout(function(){
+                                document.write(data.library_html);
+                            }, 500);
+                        } else {
+                            M.toast({html: 'Unable to remove.'});
+                        }
+                    },
+                    failure: function (data) {
+                        M.toast({html: 'Unable to remove.'});
+                    }
+                }
+            );
+            return false;
+        };
+        $("#library").on("click", ".js-remove-from-library", removeFromLibrary);
+    });
+    </script>
+{% endblock %}

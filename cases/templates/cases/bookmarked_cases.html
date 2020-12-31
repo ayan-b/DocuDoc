@@ -1,0 +1,26 @@
+<h2>Bookmarked Cases</h2>
+<div class="bookmarked-cases">
+    {% if bookmarked_cases %}
+        {% for case in bookmarked_cases %}
+            <div class="card white darken-1">
+                    <div class="card-content black-text">
+                        <span class="card-title">{{ case.case.cases_short_name }}</span>
+                        <p>{{ case.case.cases_description | safe | slice:":300"}}</p>
+                    </div>
+                    <div class="card-action">
+                        <form action="{% url 'cases:bookmark_case' case.case.id %}" method="post">
+                            {% csrf_token %}
+                            <a href="{% url 'cases:details' case.case.id %}">More</a>
+                            <input type="hidden" name="remove" value="true">
+                            <button name="remove-from-bookmark" class="btn-flat waves-effect waves-light js-remove-from-bookmark teal-text">
+                                <i class="material-icons"></i>
+                                Unbookmark
+                            </button>
+                        </form>
+                    </div>
+            </div>
+        {% endfor %}
+    {% else %}
+    Nothing bookmarked yet.
+    {% endif %}
+</div>

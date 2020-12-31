@@ -1,0 +1,315 @@
+{% extends 'cases/base.html' %}
+{% load static %}
+{% load material_form %}
+{% block title %} {{ case.cases_short_name }} | {% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="row">
+            {% if group <= 2 %}
+                <div class="col s12 case-detail" id="case-detail">
+                    {% include 'cases/case_description.html' %}
+                </div>
+            {% endif %}
+            {% include 'cases/comments.html' %}
+            <h3>Action Area</h3>
+            <div class="card col s12 action-area new-comment-add-user">
+                <div class="card-tabs">
+                    <ul class="tabs tabs-fixed-width">
+                        <li class="tab col s3 "><a href="#new-comment">New Comment</a></li>
+                        {% if group <= 2 %}<li class="tab col s3"><a href="#add-user">Add/Remove User</a></li>{% endif %}
+                        <li class="tab col s3"><a href="#upload-file">Upload File</a> </li>
+                    </ul>
+                </div>
+                <div class="card-content grey lighten-5">
+                    <div id="new-comment">
+                    <form method="POST">
+                        {% csrf_token %}
+                        {{ new_comment_form.media }}
+                        {% form form=new_comment_form %}{% endform %}
+                        <button class="btn waves-effect" type="submit" name="new-comment">
+                            Add Comment
+                            <i class="material-icons right">send</i>
+                        </button>
+                    </form>
+                    </div>
+
+                {% if group <= 2 %}
+                    <div id="add-user">
+                        {% if group <= 2 %}
+                            Users in this case:
+                            <div class="patient-hospital">
+                                <div class="chip">{{ patient_username }}</div>
+                                {% for hospital in hospitals %}
+                                <div class="chip">{{ hospital }}</div>
+                                {% endfor %}
+                            </div>
+                            <div class="users chips chips-autocomplete" id="existing-users">
+{#                            <div class="chip">{{ patient_username }}</div>#}
+{#                                {% for user in users %}#}
+{#                                    <div class="chip">#}
+{#                                        {{ user }}#}
+{#                                         patient cannot be removed once added#}
+{##}
+{#                                        {% ifnotequal user|stringformat:"s" patient_username %}#}
+{#                                        <i class="close material-icons"></i>#}
+{#                                        {% endifnotequal %}#}
+{#                                    </div>#}
+{#                                {% endfor %}#}
+                            </div>
+                        {% endif %}
+{#                        <form method="POST">#}
+{#                            {% csrf_token %}#}
+{#                            {% form form=add_user_form %}{% endform %}#}
+{#                            <button class="btn waves-effect waves-light" type="submit" name="add-user">#}
+{#                                Add User#}
+{#                                <i class="material-icons right">person_add_alt_1</i>#}
+{#                            </button>#}
+{#                        </form>#}
+                    </div>
+                {% endif %}
+                    <div id="upload-file">
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {% form form=upload_file_form %}{% endform %}
+                            <button class="btn waves-effect waves-light" type="submit" name="upload-file">
+                                Upload
+                                <i class="material-icons right">cloud_upload</i>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% include 'cases/edit_modal.html' %}
+        {% include 'cases/case_edit_modal.html' %}
+    </div>
+
+{% endblock content %}
+{% block extra_javascript %}
+    <script>
+        $(document).ready(function(){
+            $('.tabs').tabs();
+        });
+        $(document).ready(function(){
+            $('.modal').modal({
+                dismissible: false
+            });
+        });
+        {#for modal#}
+        $(document).ready(function(){
+            $('.modal').modal();
+        });
+    </script>
+    <script type="application/javascript" src="{% static 'cases/csrfready.js' %}"></script>
+{#    Required for ajaxifying#}
+    <script>
+    $(document).ready(function(){
+        let $myForm = $('.my-ajax-form')
+        $myForm.submit(function(event){
+            event.preventDefault()
+            let $formData = $(this).serialize()
+            let $thisURL = $myForm.attr('data-url') || window.location.href // or set your own url
+            $.ajax({
+                method: "POST",
+                url: $thisURL,
+                data: $formData,
+                success: handleFormSuccess,
+                error: handleFormError,
+            })
+        })
+
+        function handleFormSuccess(data, textStatus, jqXHR){
+            console.log(data)
+            console.log(textStatus)
+            console.log(jqXHR)
+            $myForm.reset(); // reset form data
+        }
+
+        function handleFormError(jqXHR, textStatus, errorThrown){
+            console.log(jqXHR)
+            console.log(textStatus)
+            console.log(errorThrown)
+        }
+    })
+    </script>
+    <script>
+    $(function () {
+
+      /* Functions */
+
+      let loadForm = function () {
+        let btn = $(this);
+        $.ajax({
+          url: btn.attr("data-url"),
+          type: 'get',
+          dataType: 'json',
+          beforeSend: function () {
+            $("#edit-modal").modal("open");
+          },
+          success: function (data) {
+            $("#edit-modal .modal-content").html(data.html_form);
+          }
+        });
+      };
+
+      let saveForm = function () {
+        let form = $(this);
+        console.log(form.attr("action"));
+        $.ajax({
+          url: form.attr("action"),
+          data: form.serialize(),
+          type: form.attr("method"),
+          dataType: 'json',
+          success: function (data) {
+            if (data.form_is_valid) {
+              $("#comments").html(data.comments_list);
+              $("#edit-modal").modal("close");
+            }
+            else {
+              $("#edit-modal .modal-content").html(data.html_form);
+            }
+          }
+        });
+        return false;
+      };
+
+      /* Binding */
+
+      // Update comment
+      $("#comments").on("click", ".js-update-comment", loadForm);
+      $("#edit-modal").on("submit", ".js-comment-update-form", saveForm);
+
+    });
+    </script>
+    <script>
+    $(function () {
+
+        /* Functions */
+
+        let caseLoadForm = function () {
+            let btn = $(this);
+            $.ajax({
+                url: btn.attr("data-url"),
+                type: 'get',
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#case-edit-modal").modal("open");
+                },
+                success: function (data) {
+                    {#console.log(data);#}
+                    $("#case-edit-modal .modal-content").html(data.html_form);
+                }
+            });
+        };
+
+
+        /* Binding */
+
+        // Update case description
+        $("#case-detail").on("click", ".js-update-case", caseLoadForm);
+    });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var elems = document.querySelector('.collapsible');
+        var instances = M.Collapsible.init(elems);
+        instances.open();
+    });
+    </script>
+    <script>
+    $(function () {
+        let addToLibrary = function () {
+            let form = $(this).parents("form");
+            $.ajax({
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                    type: form.attr("method"),
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.form_is_valid) {
+                            M.toast({html: 'Added to my library!'});
+                        } else {
+                            M.toast({html: 'Unable to add.'});
+                        }
+                    },
+                    failure: function (data) {
+                        M.toast({html: 'Unable to add.'});
+                    }
+                }
+                );
+                return false;
+        };
+
+        // Add to library
+        $("#comments").on("click", ".js-add-to-library", addToLibrary);
+    });
+    </script>
+    <script>
+    {#Remove user#}
+    function removeExtraClose() {
+        {#hack to remove extra close icon#}
+        let chipCloses = document.getElementsByClassName("material-icons close");
+        for (let i = 0; i < chipCloses.length; ++i) {
+            chipCloses[i].innerHTML = '';
+        }
+    }
+    function chipDeleted(e, data) {
+        let username = data.childNodes[0].textContent;
+        console.log("Chip was deleted with text: " + data.childNodes[0].textContent);
+        $.ajax({
+            type: "POST",
+            url: "/remove-user",
+            data: {
+                'username': username,
+                'case_id': {{ case.id }},
+            },
+            success: function (data) {
+                M.toast({html: data['message']})
+            }
+        });
+    }
+    function chipAdded(e, data) {
+        let username = data.childNodes[0].textContent;
+        console.log("Chip was added with text: " + data.childNodes[0].textContent);
+        $.ajax({
+            type: "POST",
+            url: "/add-user-to-case",
+            data: {
+                'username': username,
+                'case_id': {{ case.id }},
+            },
+            success: function (data) {
+                M.toast({html: data['message']});
+            }
+        });
+        removeExtraClose();
+    }
+
+    document.addEventListener("DOMContentLoaded", function (e) {
+        console.log("DOM fully loaded and parsed");
+        let elems = document.querySelectorAll('.chips');
+        let instances = M.Chips.init(elems, {
+            data:[
+                {% for user in users %}
+                    {% ifnotequal user|stringformat:"s" patient_username %}
+                        {tag: "{{ user }}" },
+                    {% endifnotequal %}
+                {% endfor %}
+            ],
+            autocompleteOptions: {
+              data: {
+                {% for user in all_user %}
+                    '{{ user.username }}': null,
+                {% endfor %}
+              },
+              limit: 3,
+              minLength: 1
+            },
+            onChipDelete: function (e, data) { chipDeleted(e, data) },
+            onChipAdd: function (e, data) { chipAdded(e, data) }
+        });
+        removeExtraClose();
+    });
+
+    </script>
+{% endblock %}

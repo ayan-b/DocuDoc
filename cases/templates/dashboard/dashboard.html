@@ -1,0 +1,66 @@
+{% extends 'cases/base.html' %}
+{% load static %}
+{% block title %} Dashboard | {% endblock %}
+{% block content %}
+    <div class="container" id="unapproved-users">
+        <h2>Unapproved Users</h2>
+        {% if users %}
+          <table class="highlight responsive-table">
+            <thead>
+              <tr>
+                  <th>Username</th>
+                  <th>Name</th>
+                  <th>Address</th>
+                  <th>Phone Number</th>
+                  <th>Secondary Phone Number</th>
+                  <th>Other Info</th>
+                  <th>License</th>
+                  <th>Approve</th>
+              </tr>
+            </thead>
+
+            <tbody>
+            {% for user in users %}
+                <tr>
+                <td>{{ user.username }}</td>
+                <td>{{ user.first_name }}</td>
+                <td>{{ user.address }}, PIN Code - {{ user.pin_code }}</td>
+                <td>{{ user.mobile_no }}</td>
+                <td>{{ user.emergency_mobile }}</td>
+                <td>{{ user.other_info }}</td>
+                <td><a href="{{ user.license.url }}">View</a></td>
+                <td>
+                    <span id="approve"><a class="waves-effect waves-light btn" id="{{ user.id }}">Approve</a></span>
+                </td>
+                </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+        {% else %}
+        No unapproved users!
+    {% endif %}
+    </div>
+{% endblock %}
+{% block extra_javascript %}
+    <script type="application/javascript" src="{% static 'cases/csrfready.js' %}"></script>
+    <script>
+    $(document).ready(function() {
+        console.log("ready");
+        $('#approve').click(function () {
+            console.log("test");
+            // send a post request
+            console.log(this);
+            let childnode = this.childNodes[0];
+            let user_id = childnode.id;
+             $.ajax({
+                 type: "POST",
+                 url: "approve/" + user_id,
+                 success: function (data) {
+                     M.toast({html: data['message']});
+                     childnode.outerHTML = `<a class="btn disabled">Approved</a>`;
+                 }
+            })
+        });
+    });
+    </script>
+{% endblock %}

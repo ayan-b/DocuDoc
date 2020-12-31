@@ -1,0 +1,8 @@
+django
+django_material
+django_ckeditor
+django_simple_search
+django-storages
+whitenoise
+psycopg2-binary
+gunicorn

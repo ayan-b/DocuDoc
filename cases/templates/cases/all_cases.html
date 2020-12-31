@@ -1,0 +1,66 @@
+{% extends 'cases/base.html' %}
+
+{% block title %} All Cases | {% endblock %}
+
+{% block content %}
+<div class="container row">
+    <div class="recent-cases">
+        <div class="col s12 m12">
+        <h2>All Cases</h2>
+            {% if latest_cases_list %}
+                {% for case in latest_cases_list %}
+                <div class="card white darken-1">
+                    <div class="card-content black-text">
+                        <span class="card-title">{{ case.cases_short_name }}</span>
+                        <p>{{ case.cases_description | safe | slice:":300"}}</p>
+                    </div>
+                    <div class="card-action">
+                        <form action="{% url 'cases:bookmark_case' case.id %}" method="post">
+                            {% csrf_token %}
+                            <a href="{% url 'cases:details' case.id %}">More</a>
+                            <button name="add-to-bookmark" class="btn-flat waves-effect waves-light js-add-to-bookmark teal-text">
+                                <i class="material-icons"></i>
+                                Bookmark
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-active-cases"></div>
+                <p>No active cases.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+{% block extra_javascript %}
+    <script>
+    // bookmark case
+    $(function () {
+        let bookmarkCase = function () {
+            let form = $(this).parents("form");
+            $.ajax({
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                    type: form.attr("method"),
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.form_is_valid) {
+                            M.toast({html: 'Bookmarked!'});
+                        } else {
+                            M.toast({html: 'Unable to bookmark.'});
+                        }
+                    },
+                    failure: function (data) {
+                        M.toast({html: 'Unable to bookmark.'});
+                    },
+                }
+            );
+            return false;
+        };
+
+        $(".recent-cases").on("click", ".js-add-to-bookmark", bookmarkCase);
+    });
+    </script>
+{% endblock %}

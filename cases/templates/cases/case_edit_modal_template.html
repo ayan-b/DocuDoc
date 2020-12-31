@@ -1,0 +1,16 @@
+{% load material_form %}
+<!-- Modal Structure -->
+<div id="case-edit-modal" class="">
+    <h4>Edit Case</h4>
+    <div class="modal-content">
+        <form method="POST" action="{% url 'cases:edit_case' form.instance.pk %}" class="js-case-update-form">
+            {% csrf_token %}
+            {{ form.media }}
+            {% form %}{% endform %}
+            <button class="btn waves-effect" type="submit" name="">
+                Edit Case
+                <i class="material-icons right">send</i>
+            </button>
+        </form>
+    </div>
+</div>

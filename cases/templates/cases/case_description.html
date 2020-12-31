@@ -1,0 +1,34 @@
+<div class="card grey lighten-5">
+    <div class="card-content">
+        <span class="card-title">
+            {{ case.cases_short_name }}
+            {% if case.is_active %}
+            <span class="new badge" data-badge-caption="">Active</span>
+             {% else %}
+                <span class="new badge red" data-badge-caption="">Not Active</span>
+             {% endif %}
+        </span>
+        <ul class="collapsible expandable white">
+            <li>
+                <div class="collapsible-header"> <i class="material-icons">perm_identity </i><b>Patient Details for {{ case.patient_username }}</b></div>
+                <div class="collapsible-body">
+                    <b>Username</b>: {{ case.patient_username }} <br>
+                    <b>First Name</b>: {% if patient.first_name %} {{ patient.first_name }} {% else %} <em>Not provided</em> {% endif %}<br>
+                    <b>Last Name</b>: {% if patient.last_name %} {{ patient.last_name }} {% else %} <em>Not provided</em> {% endif %}<br>
+                    <b>Gender</b>: {% if patient.gender %} {{ patient.gender }} {% else %} <em>Not provided</em> {% endif %}<br>
+                    <b>Birth-date</b>: {% if patient.birthdate %} {{ patient.birthdate }} {% else %} <em>Not provided</em> {% endif %}<br>
+                    <b>Mobile Number</b>: {% if patient.mobile_no %} {{ patient.mobile_no }} {% else %} <em>Not provided</em> {% endif %}<br>
+                    <b>Emergency Mobile Number</b>: {% if patient.emergency_mobile %} {{ patient.emergency_mobile }} {% else %} <em>Not provided</em> {% endif %}<br>
+                    <b>Other Information</b>: {% if patient.other_info %} {{ patient.other_info }} {% else %} <em>Not provided</em> {% endif %}<br>
+                </div>
+            </li>
+            <li>
+                <div class="case-description collapsible-header"><i class="material-icons">folder_open</i><b>Description</b></div>
+                <div class="collapsible-body"> {{ case.cases_description | safe}}</div>
+            </li>
+        </ul>
+    </div>
+    <div class="card-action">
+        <button data-target="case-edit-modal" class="btn modal-trigger js-update-case" type="button" data-url="{% url 'cases:edit_case' case.id %}">Edit</button>
+    </div>
+  </div>

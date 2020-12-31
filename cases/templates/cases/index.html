@@ -1,0 +1,121 @@
+{% extends "cases/base.html" %}
+{% block title %} Recent Cases | {% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="recent-cases">
+        <div class="col s12 m6">
+        <h2>Recent Cases</h2>
+            {% if latest_cases_list %}
+                {% for case in latest_cases_list %}
+                <div class="card white darken-1">
+                    <div class="card-content black-text">
+                        <span class="card-title">{{ case.cases_short_name }}</span>
+                        <p>{{ case.cases_description | safe | slice:":300"}}</p>
+                    </div>
+                    <div class="card-action">
+                        <form action="{% url 'cases:bookmark_case' case.id %}" method="post">
+                            {% csrf_token %}
+                            <a href="{% url 'cases:details' case.id %}">More</a>
+                            <button name="add-to-bookmark" class="btn-flat waves-effect waves-light js-add-to-bookmark teal-text">
+                                <i class="material-icons"></i>
+                                Bookmark
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-active-cases"></div>
+                <p>No active cases.</p>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col s12 m6">
+        <div class="search-box">
+            <h2>Search</h2>
+            <form id="form" action="/search">
+                <div class="input-field">
+                <i class="material-icons prefix">search</i>
+              <input type="search" id="query" name="q" placeholder="Search for Cases...">
+                </div>
+            </form>
+            </form>
+        </div>
+        <div id="bookmarked-cases">
+            {% include "cases/bookmarked_cases.html" %}
+        </div>
+    </div>
+    <div class="fixed-action-btn">
+        <a class="btn-floating btn-large waves-effect waves-light red z-depth-2 modal-trigger" href="#add-cases">
+            <i class="large material-icons">add</i>
+        </a>
+    </div>
+{% include 'cases/add_case.html' %}
+</div>
+{% endblock %}
+{% block extra_javascript %}
+    <script>
+        $(document).ready(function(){
+            $('.tabs').tabs();
+        });
+        {#for modal#}
+        $(document).ready(function(){
+            $('.modal').modal({
+                dismissible: false
+            });
+        });
+    </script>
+    <script>
+    // bookmark case
+    $(function () {
+        let bookmarkCase = function () {
+            let form = $(this).parents("form");
+            $.ajax({
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                    type: form.attr("method"),
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.form_is_valid) {
+                            M.toast({html: 'Bookmarked!'});
+                            $("#bookmarked-cases").html(data['bookmarked_cases_html']);
+                        } else {
+                            M.toast({html: 'Unable to bookmark.'});
+                        }
+                    },
+                    failure: function (data) {
+                        M.toast({html: 'Unable to bookmark.'});
+                    },
+                }
+            );
+            return false;
+        };
+        let unbookmarkCase = function () {
+            let form = $(this).parents("form");
+            $.ajax({
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                    type: form.attr("method"),
+                    dataType: 'json',
+                    success: function (data) {
+                        if (data.form_is_valid) {
+                            M.toast({html: 'Removed bookmark!'});
+                            $("#bookmarked-cases").html(data['bookmarked_cases_html']);
+                        } else {
+                            M.toast({html: 'Unable to remove.'});
+                        }
+                    },
+                    failure: function (data) {
+                        M.toast({html: 'Unable to remove.'});
+                    },
+                }
+            );
+            return false;
+        }
+
+        $(".recent-cases").on("click", ".js-add-to-bookmark", bookmarkCase);
+        $("#bookmarked-cases").on("click", ".js-remove-from-bookmark", unbookmarkCase);
+    });
+    </script>
+{% endblock %}
