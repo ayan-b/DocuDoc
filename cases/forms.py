@@ -18,19 +18,6 @@ class NewCommentForm(forms.ModelForm):
         fields = ['content', 'comment_type']
 
 
-class CreateUserForm(UserCreationForm):
-    USER_TYPE_CHOICES = (
-        ('hospital', 'Hospital'),
-        ('pharmacy', 'Pharmacy'),
-        ('diagnosis_center', 'Diagnosis Center'),
-    )
-    register_as = forms.ChoiceField(choices=USER_TYPE_CHOICES)
-
-    class Meta:
-        model = User
-        fields = ['username', 'email', 'register_as']
-
-
 class SignUpFormPatient(UserCreationForm):
     username = forms.CharField()
     email = forms.EmailField(label="Email Address")
@@ -80,30 +67,65 @@ class SignUpFormMedical(UserCreationForm):
     emergency_mobile = forms.CharField(required=True)
     other_info = forms.CharField(
         widget=forms.TextInput(
-            attrs={'placeholder': 'Any other information you want us to know'}
+            attrs={'placeholder': 'About your institution, add info regarding services you provide etc.'}
         ),
         required=False
     )
     license = forms.FileField(required=True)
 
-    layout = Layout('username', 'email',
-                    Row('password1', 'password2'),
-                    'group_name',
-                    Fieldset(
-                        'More Details',
-                        'first_name',
-                        'address',
-                        'pin_code',
-                        Row('mobile_no', 'emergency_mobile'),
-                        'other_info',
-                        'license',
-                    )
-                )
+    layout = Layout(
+        'username', 'email',
+        Row('password1', 'password2'),
+        'group_name',
+        Fieldset(
+            'More Details',
+            'first_name',
+            'address',
+            'pin_code',
+            Row('mobile_no', 'emergency_mobile'),
+            'other_info',
+            'license',
+        )
+    )
 
     class Meta:
         model = User
         fields = ['username', 'email', 'first_name',
                   'mobile_no', 'emergency_mobile', 'address', 'pin_code', 'other_info', 'license']
+
+
+class CreateUserForm(SignUpFormMedical):
+    group_name = forms.ChoiceField(
+        choices=(('hospital', 'Hospital'), ('pharmacy', 'Pharmacy'), ('diagnosis_center', 'Diagnosis Center')),
+        required=True,
+        label='Add this user as'
+    )
+    other_info = forms.CharField(
+        widget=forms.TextInput(
+            attrs={'placeholder': 'About the institution, add info regarding services it provides etc.'}
+        ),
+        required=False
+    )
+    license = forms.FileField(required=False)
+
+    layout = Layout(
+        'username', 'email',
+        Row('password1', 'password2'),
+        'group_name',
+        Fieldset(
+            'More Details',
+            'first_name',
+            'address',
+            'pin_code',
+            Row('mobile_no', 'emergency_mobile'),
+            'other_info',
+        )
+    )
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'first_name',
+                  'mobile_no', 'emergency_mobile', 'address', 'pin_code', 'other_info']
 
 
 class AddUserForm(forms.Form):

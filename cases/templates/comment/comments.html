@@ -19,7 +19,7 @@
                 <div class="card-content">
                 {% if comments.hospital %}
                     {% for comment in comments.hospital %}
-                        {% include 'cases/comment.html' %}
+                        {% include 'comment/comment.html' %}
                     {% endfor %}
                 {% else %}
                     No treatment comments yet.
@@ -48,7 +48,7 @@
                 <div class="card-content">
                     {% if comments.prescription %}
                         {% for comment in comments.prescription %}
-                            {% include 'cases/comment.html' %}
+                            {% include 'comment/comment.html' %}
                         {% endfor %}
                     {% else %}
                         Nothing prescribed yet.
@@ -77,7 +77,7 @@
                 <div class="card-content">
                     {% if comments.diagnosis %}
                         {% for comment in comments.diagnosis %}
-                            {% include 'cases/comment.html' %}
+                            {% include 'comment/comment.html' %}
                         {% endfor %}
                     {% else %}
                         No diagnosis data yet.

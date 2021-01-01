@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserCreationForm
-from .models import Case, Comment, User, Document, MyLibrary, BookmarkedCases
+from .models import Case, Comment, User, Document, MyLibrary, BookmarkedCase
 
 
 class CustomUserAdmin(UserAdmin):
@@ -34,4 +34,4 @@ admin.site.register(Case)
 admin.site.register(Comment)
 admin.site.register(Document)
 admin.site.register(MyLibrary)
-admin.site.register(BookmarkedCases)
+admin.site.register(BookmarkedCase)

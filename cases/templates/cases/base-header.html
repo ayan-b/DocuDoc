@@ -16,7 +16,8 @@
                     <li><a class="" href="{% url 'cases:all_cases' %}"><i class="material-icons left">fast_forward</i>All Cases</a></li>
                     <li><a class="dropdown-trigger" href="#!" data-target="dropdown1"><i class="material-icons left">account_circle</i>{{ request.user.username }}<i class="material-icons right">arrow_drop_down</i></a></li>
                 {% else %}
-                    <li><a href="{% url 'cases:login' %}">Sign In</a></li>
+                    <li><a href="{% url 'cases:login' %}"><i class="material-icons left">login</i>Log In</a></li>
+                    <li><a href="{% url 'cases:signup' %}"><i class="material-icons left">person_add</i>Sign Up</a></li>
                 {% endif %}
             </ul>
         </div>

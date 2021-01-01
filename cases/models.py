@@ -119,13 +119,19 @@ class MyLibrary(models.Model):
     user = models.ForeignKey(User, on_delete=CASCADE)
     document = models.ForeignKey(Document, on_delete=CASCADE)
 
+    class Meta:
+        verbose_name_plural = 'myLibraries'
+
     def __str__(self):
         return str(self.user) + ' ' + str(self.document)
 
 
-class BookmarkedCases(models.Model):
+class BookmarkedCase(models.Model):
     user = models.ForeignKey(User, on_delete=CASCADE)
     case = models.ForeignKey(Case, on_delete=CASCADE)
+
+    class Meta:
+        verbose_name_plural = 'bookmarked Cases'
 
     def __str__(self):
         return str(self.user) + ' ' + str(self.case)

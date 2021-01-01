@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.timezone import now
 from simple_search import search_filter
 
-from .models import Case, Comment, User, MyLibrary, Document, BookmarkedCases
+from .models import Case, Comment, User, MyLibrary, Document, BookmarkedCase
 from .forms import (
     NewCaseForm, NewCommentForm, CreateUserForm, AddUserForm, SignUpFormPatient, CaseEditForm, UploadFileForm,
     EditProfileForm, SignUpFormMedical, EditProfileFormMedical
@@ -49,11 +49,12 @@ def index_view(request):
             return HttpResponseRedirect(reverse('cases:index'))
     else:
         form = NewCaseForm()
-    bookmarked_cases = BookmarkedCases.objects.filter(user=request.user)
+    bookmarked_cases = BookmarkedCase.objects.filter(user=request.user)
     return render(request, 'cases/index.html', {
         'latest_cases_list': latest_cases_list,
         'add_case': form,
         'bookmarked_cases': bookmarked_cases,
+        'group': get_group(request.user),
     })
 
 
@@ -159,10 +160,11 @@ def add_user(request):
         form = CreateUserForm()
         if request.method == 'POST':
             form = CreateUserForm(request.POST)
+            print(form.errors)
             if form.is_valid():
                 user = form.save()
                 username = form.cleaned_data.get('username')
-                group_name = form.cleaned_data.get('register_as')
+                group_name = form.cleaned_data.get('group_name')
                 group = Group.objects.get(name=group_name)
                 user.groups.add(group)
                 messages.success(request, 'Account created: ' + username)
@@ -240,7 +242,7 @@ def sign_up_medical(request):
             user.is_active = False
             user.save()
             return redirect('/accounts/login')
-    return render(request, 'registration/sign_up.html', {'form': form})
+    return render(request, 'registration/sign_up.html', {'form': form, 'medical': True})
 
 
 def save_comment_form(request, form, pk, template_name):
@@ -253,7 +255,7 @@ def save_comment_form(request, form, pk, template_name):
             form.save()
             data['form_is_valid'] = True
             comments = current_case.comments.all()
-            data['comments_list'] = render_to_string('cases/comments.html', {
+            data['comments_list'] = render_to_string('cases/templates/comment/comments.html', {
                     'comments': {
                         'hospital': comments.filter(comment_type=1),
                         'prescription': comments.filter(comment_type=2),
@@ -261,7 +263,7 @@ def save_comment_form(request, form, pk, template_name):
                     },
                     'group': get_group(request.user)
                 }
-            )
+                                                     )
             current_case.updated_date = now()
             current_case.save()
         else:
@@ -351,12 +353,12 @@ def bookmark_case(request, pk):
     if request.method == 'POST':
         print(request.POST)
         if 'remove' in request.POST:
-            BookmarkedCases.objects.filter(user=request.user).get(case=pk).delete()
+            BookmarkedCase.objects.filter(user=request.user).get(case=pk).delete()
         else:
-            obj, created = BookmarkedCases.objects.get_or_create(user=request.user, case=Case.objects.get(id=pk))
+            obj, created = BookmarkedCase.objects.get_or_create(user=request.user, case=Case.objects.get(id=pk))
         data['form_is_valid'] = True
         data['bookmarked_cases_html'] = render_to_string('cases/bookmarked_cases.html', context={
-            'bookmarked_cases': BookmarkedCases.objects.filter(user=request.user)
+            'bookmarked_cases': BookmarkedCase.objects.filter(user=request.user)
         }, request=request)
     return JsonResponse(data)
 

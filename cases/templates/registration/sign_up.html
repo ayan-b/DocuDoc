@@ -8,6 +8,14 @@
             <div class="card white">
                 <div class="card-content black-text">
                     <span class="card-title">Sign Up</span>
+                    <span>
+                        <i class="material-icons">info</i>
+                        {% if medical %}
+                            If you are a non-medical user, please sign up <a href="{% url 'cases:signup' %}">here.</a>
+                        {% else %}
+                            If you are a hospital/pharmacy/diagnosis center, please sign up <a href="{% url 'cases:medical_signup' %}">here.</a>
+                        {% endif %}
+                    </span>
                     <form method="post" enctype="multipart/form-data">
                         {% csrf_token %}
                         {% form %}
