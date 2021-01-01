@@ -32,3 +32,9 @@ urlpatterns = [
 
 if not settings.IS_PROD:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+
+handler400 = 'cases.views.bad_request'
+handler403 = 'cases.views.permission_denied'
+handler404 = 'cases.views.page_not_found'
+handler500 = 'cases.views.server_error'

@@ -1,7 +1,8 @@
 from django.contrib import messages
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
-from django.http.response import HttpResponse, HttpResponseRedirect, JsonResponse
+from django.core.exceptions import PermissionDenied
+from django.http.response import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.views import generic
@@ -97,7 +98,7 @@ def add_case(request):
 def details(request, pk):
     case = get_object_or_404(Case, pk=pk)
     if request.user not in case.users.all():
-        return HttpResponse('You are not authorized to view this page!')
+        raise PermissionDenied()
     comments = case.comments.all()
     documents = case.documents.all()
     new_comment_form = NewCommentForm(prefix='new-comment')
@@ -171,7 +172,7 @@ def add_user(request):
                 return redirect('/')
         return render(request, 'registration/add_user.html', {'form': form})
     else:
-        return HttpResponse('You are not authorized to view this page!')
+        raise PermissionDenied()
 
 
 @login_required
@@ -242,6 +243,7 @@ def sign_up_medical(request):
             user.is_active = False
             user.save()
             return redirect('/accounts/login')
+            # TODO: Redirect to a page "You're account will be approved in few days"
     return render(request, 'registration/sign_up.html', {'form': form, 'medical': True})
 
 
@@ -249,13 +251,13 @@ def save_comment_form(request, form, pk, template_name):
     data = {}
     current_case = Comment.objects.get(id=pk).case
     if request.user not in current_case.users.all():
-        return HttpResponse('You are not authorized to view this page!')
+        raise PermissionDenied()
     if request.method == 'POST':
         if form.is_valid():
             form.save()
             data['form_is_valid'] = True
             comments = current_case.comments.all()
-            data['comments_list'] = render_to_string('cases/templates/comment/comments.html', {
+            data['comments_list'] = render_to_string('comment/comments.html', {
                     'comments': {
                         'hospital': comments.filter(comment_type=1),
                         'prescription': comments.filter(comment_type=2),
@@ -277,12 +279,12 @@ def save_comment_form(request, form, pk, template_name):
 def comment_edit(request, pk):
     comment = get_object_or_404(Comment, pk=pk)
     if request.user not in comment.case.users.all():
-        return HttpResponse('You are not authorized to view this page')
+        raise PermissionDenied()
     if request.method == 'POST':
         form = NewCommentForm(request.POST, instance=comment)
     else:
         form = NewCommentForm(instance=comment)
-    return save_comment_form(request, form, pk, 'cases/edit_modal_template.html')
+    return save_comment_form(request, form, pk, 'comment/edit_modal_template.html')
 
 
 def save_case_form(request, form, pk, template_name):
@@ -317,7 +319,7 @@ def save_case_form(request, form, pk, template_name):
 def case_edit(request, pk):
     case = get_object_or_404(Case, pk=pk)
     if request.user not in case.users.all():
-        return HttpResponse('You are not authorized to view this page!')
+        raise PermissionDenied()
     if request.method == 'POST':
         form = CaseEditForm(request.POST, instance=case)
     else:
@@ -390,7 +392,7 @@ def view_profile(request, username):
             context={'user': user, 'type': GROUP_TO_IDX[group].replace('_', ' ')}
         )
     else:
-        redirect('/')
+        raise PermissionDenied()
 
 
 @login_required
@@ -405,7 +407,7 @@ def dashboard(request):
         unapproved_users = User.objects.filter(is_active=False)
         return render(request, 'dashboard/dashboard.html', {'users': unapproved_users})
     else:
-        return HttpResponse('You are not authorized to view this page!')
+        raise PermissionDenied()
 
 
 @login_required()
@@ -417,4 +419,24 @@ def approve(request, pk):
         data = {'message': f'Approved user {user.username}'}
         return JsonResponse(data=data)
     else:
-        return HttpResponse('You are not authorized to view this page!')
+        raise PermissionDenied()
+
+
+# Error code: 400
+def bad_request(request, exception):
+    return render(request, template_name='error/error.html', context={'code': '400'})
+
+
+# Error code: 403
+def permission_denied(request, exception):
+    return render(request, template_name='error/error.html', context={'code': '403'})
+
+
+# Error code 404
+def page_not_found(request, exception):
+    return render(request, template_name='error/error.html', context={'code': '404'})
+
+
+# Error code 500
+def server_error(request):
+    return render(request, template_name='error/error.html', context={'code': '500'})

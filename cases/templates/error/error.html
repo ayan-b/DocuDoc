@@ -1,0 +1,8 @@
+{% extends 'cases/base.html' %}
+{% block title %} Error | {% endblock %}
+
+{% block content %}
+<div class="container">
+    Error! Either this page doesn't exist or you don't have permission to view this page. {% if code %}Status code {{ code }}.{% endif %}
+</div>
+{% endblock %}

@@ -16,6 +16,8 @@ from urllib.parse import urlparse
 
 from django.core.management.utils import get_random_secret_key
 
+from medidoc.ckeditor_config import CKEDITOR_CONFIGS
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -33,7 +35,6 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
 # Default to false
 IS_PROD = os.getenv('IS_PROD', 'False') == 'True'
-IS_PROD = True
 
 ALLOWED_HOSTS = [
     'localhost',
