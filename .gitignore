@@ -4,6 +4,7 @@
 
 # Extra files
 /materializecssform
+/static/cases
 /static/admin
 /static/ckeditor
 /static/material
