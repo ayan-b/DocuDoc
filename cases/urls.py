@@ -9,7 +9,11 @@ from . import views
 app_name = 'cases'
 urlpatterns = [
     path('', view=views.index_view, name='index'),
-    url(r'accounts/login/$', view=auth_views.LoginView.as_view(template_name='registration/login.html'), name='login'),
+    url(
+        r'accounts/login/$',
+        view=auth_views.LoginView.as_view(template_name='registration/login.html', redirect_authenticated_user=True),
+        name='login',
+    ),
     url(r'accounts/logout/$', auth_views.LogoutView.as_view(), name='logout'),
     url(r'accounts/signup/$', view=views.sign_up, name='signup'),
     url(r'accounts/signup/medical/$', view=views.sign_up_medical, name='medical_signup'),

@@ -6,3 +6,4 @@ django-storages
 whitenoise
 psycopg2-binary
 gunicorn
+boto3

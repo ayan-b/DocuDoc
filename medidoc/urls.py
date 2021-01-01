@@ -30,5 +30,5 @@ urlpatterns = [
     url(r'^ckeditor/browse/', login_required(ckeditor_views.browse), name='ckeditor_browse'),
 ]
 
-if not settings.is_prod:
+if not settings.IS_PROD:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

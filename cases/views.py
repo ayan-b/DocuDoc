@@ -363,7 +363,7 @@ def bookmark_case(request, pk):
 
 def view_profile(request, username):
     user = get_object_or_404(User, username=username)
-    if not user.is_active:
+    if not user.is_active or user.is_superuser:
         return redirect('/')
     # patient profiles can be viewed by themselves only
     # medical profiles are publicly visible, however editable by account holders only

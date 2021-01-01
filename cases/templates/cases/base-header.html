@@ -1,6 +1,8 @@
 {% load static %}
 <ul id="dropdown1" class="dropdown-content" style="width: 500px !important;" xmlns="http://www.w3.org/1999/html">
-    {% if user.is_authenticated %}<li><a href="{% url 'cases:view_profile' username=user.username %}"><i class="material-icons left">edit</i>Profile</a></li>{% endif %}
+    {% if user.is_authenticated and user.is_superuser is not True%}
+        <li><a href="{% url 'cases:view_profile' username=user.username %}"><i class="material-icons left">edit</i>Profile</a></li>
+    {% endif %}
     <li><a href="{% url 'cases:library' %}"><i class="material-icons left">collections_bookmark</i> Library</a></li>
     <li class="divider"></li>
     <li><a href="{% url 'cases:logout' %}"><i class="material-icons">exit_to_app</i>Log Out</a></li>

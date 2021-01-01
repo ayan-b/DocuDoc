@@ -16,7 +16,6 @@ from urllib.parse import urlparse
 
 from django.core.management.utils import get_random_secret_key
 
-is_prod = False
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -31,6 +30,10 @@ SECRET_KEY = os.getenv('DJANGO_SECRET_KEY', get_random_secret_key())
 # SECURITY WARNING: don't run with debug turned on in production!
 # Defaults to true
 DEBUG = os.getenv('DEBUG', 'True') == 'True'
+
+# Default to false
+IS_PROD = os.getenv('IS_PROD', 'False') == 'True'
+IS_PROD = True
 
 ALLOWED_HOSTS = [
     'localhost',
@@ -161,5 +164,19 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = 'media/'
 
 LOGOUT_REDIRECT_URL = '/'
+LOGIN_REDIRECT_URL = '/'
 
 AUTH_USER_MODEL = 'cases.user'
+
+# Digital Ocean Spaces
+if IS_PROD:
+    DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+    AWS_S3_REGION_NAME = 'nyc3'
+    AWS_S3_ENDPOINT_URL = f'https://{AWS_S3_REGION_NAME}.digitaloceanspaces.com'
+    AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = 'medidoc'
+    AWS_S3_OBJECT_PARAMETERS = {
+        'CacheControl': 'max-age=86400',
+    }
+    AWS_LOCATION = 'media'
