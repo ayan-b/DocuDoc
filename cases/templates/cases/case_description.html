@@ -3,10 +3,13 @@
         <span class="card-title">
             {{ case.cases_short_name }}
             {% if case.is_active %}
-            <span class="new badge" data-badge-caption="">Active</span>
+                <span class="new badge" data-badge-caption="">Active</span>
              {% else %}
                 <span class="new badge red" data-badge-caption="">Not Active</span>
              {% endif %}
+        <button data-target="case-edit-modal" class="btn-flat modal-trigger js-update-case right" type="button" data-url="{% url 'cases:edit_case' case.id %}">
+            <i class="material-icons blue-text">edit</i>
+        </button>
         </span>
         <ul class="collapsible expandable white">
             <li>
@@ -28,7 +31,7 @@
             </li>
         </ul>
     </div>
-    <div class="card-action">
-        <button data-target="case-edit-modal" class="btn modal-trigger js-update-case" type="button" data-url="{% url 'cases:edit_case' case.id %}">Edit</button>
-    </div>
+{#    <div class="card-action">#}
+{#        <button data-target="case-edit-modal" class="btn modal-trigger js-update-case" type="button" data-url="{% url 'cases:edit_case' case.id %}">Edit</button>#}
+{#    </div>#}
   </div>

@@ -24,6 +24,7 @@ urlpatterns = [
     path('cases/<int:pk>', view=views.details, name='details'),
     path('cases/<int:pk>/edit', view=views.case_edit, name='edit_case'),
     path('comments/<int:pk>/edit/', view=views.comment_edit, name='edit_comment'),
+    path('comments/<int:pk>/delete/', view=views.delete_comment, name='delete_comment'),
     url(r'search', view=views.search_results, name='search_results'),
     path('all', view=views.all_cases, name='all_cases'),
     path('add-to-my-library/<int:pk>', view=views.add_to_library, name='add_to_library'),

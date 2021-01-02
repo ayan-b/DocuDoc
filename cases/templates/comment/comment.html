@@ -1,15 +1,28 @@
-<div class="comment col s12 m12">
+<div class="comment col s12 m12" id="{{ comment.id }}">
   <div class="card white darken-1">
     <div class="card-content">
-      <span class="card-title"><i class="tiny material-icons">date_range</i> {{ comment.user }} <small>commented {{ comment.created_date | timesince }} ago</small></span>
+      <div class="card-title">
+          <span><i class="tiny material-icons">date_range</i> {{ comment.user }} <small>commented {{ comment.created_date | timesince }} ago</small></span>
+          <span class="comment-action">
+{#          Only patient, hospital or comment creator can delete or edit#}
+              {% if group <= 2 or request.user.username == comment.user.username %}
+                  <button data-target="delete-modal" class="waves-effect btn-flat modal-trigger js-delete-comment right" id="{{ comment.id }}">
+                    <i class="tiny material-icons red-text">delete</i>
+                  </button>
+                  <button data-target="edit-modal" class="waves-effect btn-flat modal-trigger js-update-comment right" data-url="{% url 'cases:edit_comment' comment.id %}">
+                    <i class="tiny material-icons blue-text">edit</i>
+                  </button>
+              {% endif %}
+          </span>
+      </div>
       <p>{{ comment.content | safe }}</p>
     </div>
-    <div class="card-action">
-        <button data-target="edit-modal" class="btn modal-trigger js-update-comment" type="button" data-url="{% url 'cases:edit_comment' comment.id %}">Edit</button>
-        <button class="btn waves-effect" name="delete-comment">
-        Delete Comment
-        <i class="material-icons right">delete</i>
-    </button>
-    </div>
+{#    <div class="card-action">#}
+{#        <button data-target="edit-modal" class="btn modal-trigger js-update-comment" type="button" data-url="{% url 'cases:edit_comment' comment.id %}">Edit</button>#}
+{#        <button class="btn waves-effect" name="delete-comment">#}
+{#        Delete Comment#}
+{#        <i class="material-icons right">delete</i>#}
+{#    </button>#}
+{#    </div>#}
   </div>
 </div>

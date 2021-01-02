@@ -62,6 +62,7 @@
             </div>
         </div>
         {% include 'comment/edit_modal.html' %}
+        {% include 'comment/delete_modal.html' %}
         {% include 'cases/case_edit_modal.html' %}
     </div>
 
@@ -160,6 +161,29 @@
       $("#comments").on("click", ".js-update-comment", loadForm);
       $("#edit-modal").on("submit", ".js-comment-update-form", saveForm);
 
+    });
+    </script>
+    <script>
+    {#Delete comment#}
+    $(function() {
+        let commentPk = 0; // TODO
+        $('.js-delete-comment').click(function () {
+            // get the id
+            commentPk = this.id;
+        });
+
+        $('.delete-comment-confirmation').click (function () {
+            console.log(commentPk);
+            $.ajax({
+                url: `/comments/${commentPk}/delete/`,
+                type: 'post',
+                success: function (data) {
+                    M.toast({html: data['message']});
+                    // Remove the comment
+                    $(`#${commentPk}.comment`).empty();
+                }
+            })
+        });
     });
     </script>
     <script>

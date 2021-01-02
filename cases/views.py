@@ -422,6 +422,13 @@ def approve(request, pk):
         raise PermissionDenied()
 
 
+@login_required()
+def delete_comment(request, pk):
+    Comment.objects.filter(id=pk).delete()
+    data = {'message': 'Comment deleted'}
+    return JsonResponse(data=data)
+
+
 # Error code: 400
 def bad_request(request, exception):
     return render(request, template_name='error/error.html', context={'code': '400'})

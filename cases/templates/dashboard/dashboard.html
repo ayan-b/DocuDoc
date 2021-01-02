@@ -45,11 +45,8 @@
     <script type="application/javascript" src="{% static 'cases/csrfready.js' %}"></script>
     <script>
     $(document).ready(function() {
-        console.log("ready");
         $('#approve').click(function () {
-            console.log("test");
             // send a post request
-            console.log(this);
             let childnode = this.childNodes[0];
             let user_id = childnode.id;
              $.ajax({
