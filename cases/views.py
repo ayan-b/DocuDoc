@@ -258,13 +258,13 @@ def save_comment_form(request, form, pk, template_name):
             data['form_is_valid'] = True
             comments = current_case.comments.all()
             data['comments_list'] = render_to_string('comment/comments.html', {
-                    'comments': {
-                        'hospital': comments.filter(comment_type=1),
-                        'prescription': comments.filter(comment_type=2),
-                        'diagnosis': comments.filter(comment_type=3),
-                    },
-                    'group': get_group(request.user)
-                }
+                'comments': {
+                    'hospital': comments.filter(comment_type=1),
+                    'prescription': comments.filter(comment_type=2),
+                    'diagnosis': comments.filter(comment_type=3),
+                },
+                'group': get_group(request.user)
+            }
                                                      )
             current_case.updated_date = now()
             current_case.save()
@@ -431,19 +431,39 @@ def delete_comment(request, pk):
 
 # Error code: 400
 def bad_request(request, exception):
-    return render(request, template_name='error/error.html', context={'code': '400'})
+    return render(request, template_name='error/error.html', context={'code': '400', 'message': 'Bad request.'})
 
 
 # Error code: 403
 def permission_denied(request, exception):
-    return render(request, template_name='error/error.html', context={'code': '403'})
+    return render(
+        request, template_name='error/error.html', context=
+        {
+            'code': '403',
+            'message': "Sorry, but looks like you don't have permission to view this page :(",
+        }
+    )
 
 
 # Error code 404
 def page_not_found(request, exception):
-    return render(request, template_name='error/error.html', context={'code': '404'})
+    return render(
+        request,
+        template_name='error/error.html',
+        context={
+            'code': '404',
+            'message': "Sorry, but we couldn't find this page :(",
+        }
+    )
 
 
 # Error code 500
 def server_error(request):
-    return render(request, template_name='error/error.html', context={'code': '500'})
+    return render(
+        request,
+        template_name='error/error.html',
+        context={
+            'code': '500',
+            'message': "Sorry, our server encountered some error :(",
+        }
+    )

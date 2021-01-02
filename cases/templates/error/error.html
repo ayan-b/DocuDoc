@@ -1,8 +1,25 @@
 {% extends 'cases/base.html' %}
-{% block title %} Error | {% endblock %}
-
+{% block title %} Error {{ code }} | {% endblock %}
 {% block content %}
-<div class="container">
-    Error! Either this page doesn't exist or you don't have permission to view this page. {% if code %}Status code {{ code }}.{% endif %}
-</div>
+    <div class="">
+    <div class="error-page container">
+        <div class="row">
+          <div class="col s12">
+            <div class="row">
+              <div id="" class="card col s12 m12 l12" >
+                <div class="row center">
+                  <h1 class="col s12">404</h1>
+                </div>
+                <div class="row center">
+                  <p class="center col s12">{{ message }}</p>
+                  <p class="center col s12">
+                      <button onclick="window.history.back();" class="btn waves-effect waves-light">Back</button>
+                      <a href="{% url 'cases:index' %}" class="btn waves-effect waves-light">Homepage</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+    </div>
+    </div>
 {% endblock %}
