@@ -11,7 +11,7 @@
                 <div class="card white darken-1">
                     <div class="card-content black-text">
                         <span class="card-title">{{ case.cases_short_name }}</span>
-                        <p>{{ case.cases_description | safe | slice:":300"}}</p>
+                        <p>{{ case.cases_description | safe}}</p>
                     </div>
                     <div class="card-action">
                         <form action="{% url 'cases:bookmark_case' case.id %}" method="post">
@@ -37,9 +37,8 @@
             <form id="form" action="/search">
                 <div class="input-field">
                 <i class="material-icons prefix">search</i>
-              <input type="search" id="query" name="q" placeholder="Search for Cases...">
+                    <input type="search" id="query" name="q" placeholder="Search for Cases...">
                 </div>
-            </form>
             </form>
         </div>
         <div id="bookmarked-cases">
