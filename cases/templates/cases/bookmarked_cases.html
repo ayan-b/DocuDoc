@@ -5,7 +5,7 @@
             <div class="card white darken-1">
                     <div class="card-content black-text">
                         <span class="card-title">{{ case.case.cases_short_name }}</span>
-                        <p>{{ case.case.cases_description | safe | slice:":300"}}</p>
+                        <p>{{ case.case.cases_description | safe }}</p>
                     </div>
                     <div class="card-action">
                         <form action="{% url 'cases:bookmark_case' case.case.id %}" method="post">
