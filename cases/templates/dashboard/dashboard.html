@@ -39,6 +39,9 @@
         {% else %}
         No unapproved users!
     {% endif %}
+    <div id="dashboard-add-user" class="center">
+        <a href="{% url "cases:add_user" %}"><button class="btn">Add User<i class="material-icons right">person_add</i></button></a>
+    </div>
     </div>
 {% endblock %}
 {% block extra_javascript %}
