@@ -28,7 +28,7 @@ urlpatterns = [
     url(r'search', view=views.search_results, name='search_results'),
     path('all', view=views.all_cases, name='all_cases'),
     path('add-to-my-library/<int:pk>', view=views.add_to_library, name='add_to_library'),
-    path('bookmark-case/<int:pk>', view=views.bookmark_case, name='bookmark_case'),
+    path('bookmark-case/<int:pk>/', view=views.bookmark_case, name='bookmark_case'),
     url(r'profile/(?P<username>[a-zA-Z0-9-_.]+)$', view=views.view_profile, name='view_profile'),
     path('library/', view=views.show_library, name='library'),
     path('dashboard/', view=views.dashboard, name='dashboard'),

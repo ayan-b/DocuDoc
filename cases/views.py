@@ -353,7 +353,6 @@ def add_to_library(request, pk):
 def bookmark_case(request, pk):
     data = {'form_is_valid': False}
     if request.method == 'POST':
-        print(request.POST)
         if 'remove' in request.POST:
             BookmarkedCase.objects.filter(user=request.user).get(case=pk).delete()
         else:

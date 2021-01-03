@@ -1,4 +1,5 @@
 {% extends "cases/base.html" %}
+{% load static %}
 {% block title %} Recent Cases | {% endblock %}
 
 {% block content %}
@@ -8,22 +9,19 @@
         <h2>Recent Cases</h2>
             {% if latest_cases_list %}
                 {% for case in latest_cases_list %}
-                <div class="card white darken-1">
-                    <div class="card-content black-text">
-                        <span class="card-title">{{ case.cases_short_name }}</span>
-                        <p>{{ case.cases_description | safe}}</p>
-                    </div>
-                    <div class="card-action">
-                        <form action="{% url 'cases:bookmark_case' case.id %}" method="post">
-                            {% csrf_token %}
-                            <a href="{% url 'cases:details' case.id %}">More</a>
-                            <button name="add-to-bookmark" class="btn-flat waves-effect waves-light js-add-to-bookmark teal-text">
-                                <i class="material-icons"></i>
-                                Bookmark
-                            </button>
-                        </form>
-                    </div>
-                </div>
+                    <a href="{% url 'cases:details' case.id %}">
+                        <div class="card white darken-1">
+                            <div class="card-content black-text">
+                                <div class="card-title">
+                                    {{ case.cases_short_name }}
+                                    <button name="add-to-bookmark" class="btn btn-flat right js-add-to-bookmark" id="{{ case.id }}">
+                                        <i class="material-icons">star_border</i>
+                                    </button>
+                                </div>
+                                <p>{{ case.cases_description | safe }}</p>
+                            </div>
+                        </div>
+                    </a>
                 {% endfor %}
             {% else %}
                 <div class="no-active-cases"></div>
@@ -57,6 +55,7 @@
 </div>
 {% endblock %}
 {% block extra_javascript %}
+    <script type="application/javascript" src="{% static 'cases/csrfready.js' %}"></script>
     <script>
         $(document).ready(function(){
             $('.tabs').tabs();
@@ -72,12 +71,10 @@
     // bookmark case
     $(function () {
         let bookmarkCase = function () {
-            let form = $(this).parents("form");
+            let caseId = this.id;
             $.ajax({
-                    url: form.attr("action"),
-                    data: form.serialize(),
-                    type: form.attr("method"),
-                    dataType: 'json',
+                    url: `/bookmark-case/${caseId}/`,
+                    type: 'post',
                     success: function (data) {
                         if (data.form_is_valid) {
                             M.toast({html: 'Bookmarked!'});
@@ -94,12 +91,11 @@
             return false;
         };
         let unbookmarkCase = function () {
-            let form = $(this).parents("form");
+            let caseId = this.id;
             $.ajax({
-                    url: form.attr("action"),
-                    data: form.serialize(),
-                    type: form.attr("method"),
-                    dataType: 'json',
+                    url: `/bookmark-case/${caseId}/`,
+                    type: 'post',
+                    data: {'remove': true},
                     success: function (data) {
                         if (data.form_is_valid) {
                             M.toast({html: 'Removed bookmark!'});
