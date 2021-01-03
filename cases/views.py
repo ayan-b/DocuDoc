@@ -1,4 +1,6 @@
 from django.contrib import messages
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core.exceptions import PermissionDenied
@@ -168,8 +170,7 @@ def add_user(request):
                 group_name = form.cleaned_data.get('group_name')
                 group = Group.objects.get(name=group_name)
                 user.groups.add(group)
-                messages.success(request, 'Account created: ' + username)
-                return redirect('/')
+                return redirect('/add-user')
         return render(request, 'registration/add_user.html', {'form': form})
     else:
         raise PermissionDenied()
@@ -245,6 +246,22 @@ def sign_up_medical(request):
             return redirect('/accounts/login')
             # TODO: Redirect to a page "You're account will be approved in few days"
     return render(request, 'registration/sign_up.html', {'form': form, 'medical': True})
+
+
+@login_required()
+def change_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            update_session_auth_hash(request, user)  # User doesn't need to log in again
+            messages.success(request, f"{user.username}'s password was successfully updated!")
+            return redirect('cases:index')
+        else:
+            messages.error(request, 'Error found! Please correct the error below.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'registration/change_password.html', {'form': form})
 
 
 def save_comment_form(request, form, pk, template_name):
