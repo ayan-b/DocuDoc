@@ -181,3 +181,4 @@ if IS_PROD:
         'CacheControl': 'max-age=86400',
     }
     AWS_LOCATION = 'media'
+    AWS_S3_ADDRESSING_STYLE = 'virtual'
