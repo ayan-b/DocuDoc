@@ -3,6 +3,7 @@
 {% block title %} Dashboard | {% endblock %}
 {% block content %}
     <div class="container" id="unapproved-users">
+    <div id="unapproved-users-table">
         <h2>Unapproved Users</h2>
         {% if users %}
           <table class="highlight responsive-table">
@@ -39,7 +40,9 @@
         {% else %}
         No unapproved users!
     {% endif %}
+    </div>
     <div id="dashboard-add-user" class="center">
+        <br>
         <a href="{% url "cases:add_user" %}"><button class="btn">Add User<i class="material-icons right">person_add</i></button></a>
     </div>
     </div>

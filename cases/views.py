@@ -81,13 +81,13 @@ def search_medical(request):
         for query in split_queries:
             current_users = User.objects.filter(
                 search_filter(search_fields, query),
-                groups__name__in=['hospital', 'pharmacy', 'diagnosis_center']
+                is_active=True,
+                groups__name__in=['hospital', 'pharmacy', 'diagnosis_center'],
             )
             if users is None:
                 users = current_users
             else:
                 users = users.union(current_users)
-        print(users)
         return render(request, 'cases/search-medical.html', {'users': users, 'search_term': queries})
     else:
         return render(request, 'cases/search-medical.html')
