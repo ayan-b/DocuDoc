@@ -72,6 +72,27 @@ def search_results(request):
     return render(request, 'cases/search-results.html', {'latest_cases_list': cases})
 
 
+def search_medical(request):
+    queries = request.GET.get('q')
+    if queries is not None:
+        search_fields = ['username', 'address', 'mobile_no', 'emergency_mobile', 'pin_code', 'other_info']
+        split_queries = queries.split()
+        users = None
+        for query in split_queries:
+            current_users = User.objects.filter(
+                search_filter(search_fields, query),
+                groups__name__in=['hospital', 'pharmacy', 'diagnosis_center']
+            )
+            if users is None:
+                users = current_users
+            else:
+                users = users.union(current_users)
+        print(users)
+        return render(request, 'cases/search-medical.html', {'users': users, 'search_term': queries})
+    else:
+        return render(request, 'cases/search-medical.html')
+
+
 @login_required()
 def all_cases(request):
     cases = Case.objects.filter(
@@ -124,7 +145,6 @@ def details(request, pk):
             upload_file_form = UploadFileForm(request.POST, request.FILES, prefix='upload-file')
             print(upload_file_form.errors)
             if upload_file_form.is_valid():
-                print('test')
                 upload_file_form.instance.user = request.user
                 uploaded_file = upload_file_form.save(commit=False)
                 uploaded_file.case = case
@@ -243,8 +263,7 @@ def sign_up_medical(request):
             user.groups.add(group)
             user.is_active = False
             user.save()
-            return redirect('/accounts/login')
-            # TODO: Redirect to a page "You're account will be approved in few days"
+            return redirect('cases:approval_required')
     return render(request, 'registration/sign_up.html', {'form': form, 'medical': True})
 
 

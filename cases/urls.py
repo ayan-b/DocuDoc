@@ -2,6 +2,8 @@ from django.conf.urls import url
 from django.conf.urls.static import static
 from django.urls import path, include
 from django.contrib.auth import views as auth_views
+from django.views.generic import TemplateView
+
 from medidoc import settings
 
 from . import views
@@ -18,6 +20,11 @@ urlpatterns = [
     url(r'accounts/signup/$', view=views.sign_up, name='signup'),
     url(r'accounts/signup/medical/$', view=views.sign_up_medical, name='medical_signup'),
     url(r'accounts/change-password/$', view=views.change_password, name='change_password'),
+    url(
+        'accounts/signup/medical/approval-required',
+        view=TemplateView.as_view(template_name='registration/approval_required.html'),
+        name='approval_required'
+    ),
     url(r'^add-user/$', views.add_user, name='add_user'),
 
     # case-related stuff
@@ -29,6 +36,7 @@ urlpatterns = [
     path('cases/<int:pk>/edit', view=views.case_edit, name='edit_case'),
     path('comments/<int:pk>/edit/', view=views.comment_edit, name='edit_comment'),
     path('comments/<int:pk>/delete/', view=views.delete_comment, name='delete_comment'),
+    url(r'search-medical', view=views.search_medical, name='search_medical'),
     url(r'search', view=views.search_results, name='search_results'),
     path('all', view=views.all_cases, name='all_cases'),
     path('add-to-my-library/<int:pk>', view=views.add_to_library, name='add_to_library'),

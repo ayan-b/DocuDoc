@@ -1,0 +1,36 @@
+{% extends 'cases/base.html' %}
+
+{% block title %} Search Results | {% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="search-box">
+            <h2>Search</h2>
+            <form id="form" action="{% url 'cases:search_medical' %}">
+                <div class="input-field">
+                <i class="material-icons prefix">search</i>
+                    <input type="search" id="query" name="q" placeholder="Search for hospitals, pharmacies, diagnosis centers...">
+                </div>
+            </form>
+        </div>
+        <div class="search-results">
+            {% if search_term %}
+            <h3>Search Results for {{ search_term }}</h3>
+            {% endif %}
+            {% if users %}
+                {% for user in users %}
+                    <a href="{% url 'cases:view_profile' username=user.username %}" style="color: inherit;">
+                        <div class="card user">
+                            <div class="card-content">
+                                <div class="card-title">{{ user.username }}</div>
+                                <p>{{ user.other_info }}</p>
+                            </div>
+                        </div>
+                    </a>
+                {% endfor %}
+            {% else %}
+                <p>No result found.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
