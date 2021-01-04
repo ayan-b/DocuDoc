@@ -182,3 +182,4 @@ if IS_PROD:
     }
     AWS_LOCATION = 'media'
     AWS_S3_ADDRESSING_STYLE = 'virtual'
+    AWS_QUERYSTRING_EXPIRE = 7 * 24 * 60 * 60

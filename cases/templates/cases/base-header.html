@@ -10,6 +10,9 @@
 </ul>
 {#For mobile#}
 <ul class="sidenav" id="mobile-sidenav">
+    {% if user.is_authenticated %}
+        <li><a><i class="material-icons left"></i>Hi {{ user.username }}!</li></a>
+    {% endif %}
     <li><a href="{% url 'cases:search_medical' %}"><i class="material-icons left">search</i>Medical Search</a></li>
     {% if user.is_authenticated %}
         <li><a class="" href="{% url 'cases:all_cases' %}"><i class="material-icons left">fast_forward</i>All Cases</a></li>
