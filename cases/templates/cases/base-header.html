@@ -8,19 +8,42 @@
     <li><a href="{% url 'cases:logout' %}"><i class="material-icons">exit_to_app</i>Log Out</a></li>
     <li><a href="{% url 'cases:change_password' %}"><i class="material-icons">update</i>Change Password</a></li>
 </ul>
-<nav class="navbar-material">
+{#For mobile#}
+<ul class="sidenav" id="mobile-sidenav">
+    <li><a href="{% url 'cases:search_medical' %}"><i class="material-icons left">search</i>Medical Search</a></li>
+    {% if user.is_authenticated %}
+        <li><a class="" href="{% url 'cases:all_cases' %}"><i class="material-icons left">fast_forward</i>All Cases</a></li>
+{#        <li><a class="dropdown-trigger" href="#!" data-target="dropdown1"><i class="material-icons left">account_circle</i>{{ request.user.username }}<i class="material-icons right">arrow_drop_down</i></a></li>#}
+{#        ul.dropdown1 starts#}
+        {% if user.is_authenticated and user.is_superuser is not True%}
+            <li><a href="{% url 'cases:view_profile' username=user.username %}"><i class="material-icons left">edit</i>Profile</a></li>
+        {% endif %}
+        <li><a href="{% url 'cases:library' %}"><i class="material-icons left">collections_bookmark</i> Library</a></li>
+        <li class="divider"></li>
+        <li><a href="{% url 'cases:logout' %}"><i class="material-icons">exit_to_app</i>Log Out</a></li>
+        <li><a href="{% url 'cases:change_password' %}"><i class="material-icons">update</i>Change Password</a></li>
+{#        ul.dropdown1 ends#}
+    {% else %}
+        <li><a href="{% url 'cases:login' %}"><i class="material-icons left">login</i>Log In</a></li>
+        <li><a href="{% url 'cases:signup' %}"><i class="material-icons left">person_add</i>Sign Up</a></li>
+    {% endif %}
+</ul>
+<nav>
     <div class="nav-wrapper">
-        <div class="col s12">
-            <a href="/" class="brand-logo"><i><img src="{% static 'cases/logo.svg' %}" alt="logo" width="80" height="auto"></i>MediDoc</a>
-            <ul id="nav-mobile" class="right">
-                {% if user.is_authenticated %}
-                    <li><a class="" href="{% url 'cases:all_cases' %}"><i class="material-icons left">fast_forward</i>All Cases</a></li>
-                    <li><a class="dropdown-trigger" href="#!" data-target="dropdown1"><i class="material-icons left">account_circle</i>{{ request.user.username }}<i class="material-icons right">arrow_drop_down</i></a></li>
-                {% else %}
-                    <li><a href="{% url 'cases:login' %}"><i class="material-icons left">login</i>Log In</a></li>
-                    <li><a href="{% url 'cases:signup' %}"><i class="material-icons left">person_add</i>Sign Up</a></li>
-                {% endif %}
-            </ul>
-        </div>
+        <a href="{% url 'cases:index' %}" class="brand-logo">
+            <i><img src="{% static 'cases/logo.svg' %}" alt="logo" style="max-height: 100%;"></i>
+            <span class="hide-on-med-and-down">MediDoc</span>
+        </a>
+        <a href="#" data-target="mobile-sidenav" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <ul id="nav-mobile" class="right hide-on-med-and-down">
+            <li><a href="{% url 'cases:search_medical' %}"><i class="material-icons left">search</i>Medical Search</a></li>
+            {% if user.is_authenticated %}
+                <li><a class="" href="{% url 'cases:all_cases' %}"><i class="material-icons left">fast_forward</i>All Cases</a></li>
+                <li><a class="dropdown-trigger" href="#!" data-target="dropdown1"><i class="material-icons left">account_circle</i>{{ request.user.username }}<i class="material-icons right">arrow_drop_down</i></a></li>
+            {% else %}
+                <li><a href="{% url 'cases:login' %}"><i class="material-icons left">login</i>Log In</a></li>
+                <li><a href="{% url 'cases:signup' %}"><i class="material-icons left">person_add</i>Sign Up</a></li>
+            {% endif %}
+        </ul>
     </div>
 </nav>

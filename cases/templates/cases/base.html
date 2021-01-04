@@ -33,7 +33,14 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
 {% include 'material/includes/material_js.html' %}
 <script>
-    $(".dropdown-trigger").dropdown();
+    $(document).ready(function(){
+        $('.sidenav').sidenav();
+    });
+</script>
+<script>
+    $('.dropdown-trigger').dropdown({
+        hover: false
+    });
 </script>
 {% endblock javascript %}
 {% block extra_javascript %}

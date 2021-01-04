@@ -15,7 +15,7 @@
         </div>
         <div class="search-results">
             {% if search_term %}
-            <h3>Search Results for {{ search_term }}</h3>
+                <h3>Search Results for {{ search_term }}</h3>
             {% endif %}
             {% if users %}
                 {% for user in users %}
@@ -28,8 +28,9 @@
                         </div>
                     </a>
                 {% endfor %}
-            {% else %}
-                <p>No result found.</p>
+            {% endif %}
+            {% if search_term %}
+                <p>No results found.</p>
             {% endif %}
         </div>
     </div>
