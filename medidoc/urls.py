@@ -20,12 +20,14 @@ from django.contrib.auth.decorators import login_required
 from django.urls import path
 from django.urls.conf import include
 from ckeditor_uploader import views as ckeditor_views
+from django.views.generic import TemplateView
 
 from medidoc import settings
 
 urlpatterns = [
     path('', include('cases.urls')),
     path('admin/', admin.site.urls),
+    path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
     url(r'^ckeditor/upload/', login_required(ckeditor_views.upload), name='ckeditor_upload'),
     url(r'^ckeditor/browse/', login_required(ckeditor_views.browse), name='ckeditor_browse'),
 ]

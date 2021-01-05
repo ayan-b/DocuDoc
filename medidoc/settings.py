@@ -36,6 +36,9 @@ DEBUG = os.getenv('DEBUG', 'True') == 'True'
 # Default to false
 IS_PROD = os.getenv('IS_PROD', 'False') == 'True'
 
+# Minify HTML
+HTML_MINIFY = True
+
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
@@ -73,6 +76,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'htmlmin.middleware.HtmlMinifyMiddleware',
+    'htmlmin.middleware.MarkRequestMiddleware',
 ]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
