@@ -179,7 +179,7 @@ def details(request, pk):
 
 @login_required
 def add_user(request):
-    if request.user.is_superuser:
+    if request.user.is_staff:
         form = CreateUserForm()
         if request.method == 'POST':
             form = CreateUserForm(request.POST)
@@ -402,8 +402,8 @@ def bookmark_case(request, pk):
 
 def view_profile(request, username):
     user = get_object_or_404(User, username=username)
-    if not user.is_active or user.is_superuser:
-        return redirect('/')
+    if not user.is_active or user.is_staff:
+        return redirect('cases:index')
     # patient profiles can be viewed by themselves only
     # medical profiles are publicly visible, however editable by account holders only
     group = get_group(user)
@@ -438,7 +438,7 @@ def show_library(request):
 
 @login_required()
 def dashboard(request):
-    if request.user.is_superuser:
+    if request.user.is_staff:
         unapproved_users = User.objects.filter(is_active=False)
         return render(request, 'dashboard/dashboard.html', {'users': unapproved_users})
     else:
@@ -447,7 +447,7 @@ def dashboard(request):
 
 @login_required()
 def approve(request, pk):
-    if request.user.is_superuser:
+    if request.user.is_staff:
         user = User.objects.get(id=pk)
         user.is_active = True
         user.save()

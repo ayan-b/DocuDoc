@@ -1,6 +1,6 @@
 {% load static %}
 <ul id="dropdown1" class="dropdown-content" style="width: 500px !important;" xmlns="http://www.w3.org/1999/html">
-    {% if user.is_authenticated and user.is_superuser is not True%}
+    {% if user.is_authenticated and user.is_staff is not True%}
         <li><a href="{% url 'cases:view_profile' username=user.username %}"><i class="material-icons left">edit</i>Profile</a></li>
     {% endif %}
     <li><a href="{% url 'cases:library' %}"><i class="material-icons left">collections_bookmark</i> Library</a></li>
@@ -18,7 +18,7 @@
         <li><a class="" href="{% url 'cases:all_cases' %}"><i class="material-icons left">fast_forward</i>All Cases</a></li>
 {#        <li><a class="dropdown-trigger" href="#!" data-target="dropdown1"><i class="material-icons left">account_circle</i>{{ request.user.username }}<i class="material-icons right">arrow_drop_down</i></a></li>#}
 {#        ul.dropdown1 starts#}
-        {% if user.is_authenticated and user.is_superuser is not True%}
+        {% if user.is_authenticated and user.is_staff is not True%}
             <li><a href="{% url 'cases:view_profile' username=user.username %}"><i class="material-icons left">edit</i>Profile</a></li>
         {% endif %}
         <li><a href="{% url 'cases:library' %}"><i class="material-icons left">collections_bookmark</i> Library</a></li>
