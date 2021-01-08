@@ -28,9 +28,10 @@
                         </div>
                     </a>
                 {% endfor %}
-            {% endif %}
-            {% if search_term %}
-                <p>No results found.</p>
+            {% else %}
+                {% if search_term %}
+                    <p>No results found.</p>
+                {% endif %}
             {% endif %}
         </div>
     </div>

@@ -57,11 +57,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'material',
     'cases.apps.CasesConfig',
     'ckeditor',
     'ckeditor_uploader',
     'storages',
+    'social_django',
 ]
 
 CKEDITOR_UPLOAD_PATH = 'uploads/'
@@ -78,6 +80,11 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'htmlmin.middleware.HtmlMinifyMiddleware',
     'htmlmin.middleware.MarkRequestMiddleware',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'social_auth_drchrono.backends.drchronoOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
@@ -159,6 +166,8 @@ USE_L10N = True
 
 USE_TZ = True
 
+SOCIAL_AUTH_DRCHRONO_KEY = 'HgEutH1AWHjLw1RaXz8hTZRhBq1bFkjGLF5tJ37s'
+SOCIAL_AUTH_DRCHRONO_SECRET = '036DIWSCaoWCNoRmRosWgIDKmczjKjoDRY5KTOtqPSsYaqNfz9fxGKkjPnR1c3d91F5GbomMFLFCe6zDdH9s9oGlK3p0tjsYqqHTqcFljiX1o9lG50w55aVpPKH9OM1A'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/

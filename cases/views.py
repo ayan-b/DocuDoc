@@ -2,15 +2,17 @@ from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import Group
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import PermissionDenied
 from django.http.response import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
-from django.views import generic
-from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views import generic, View
+from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.timezone import now
+from django.views.generic import TemplateView, ListView, FormView
 from simple_search import search_filter
 
 from .models import Case, Comment, User, MyLibrary, Document, BookmarkedCase
@@ -18,13 +20,23 @@ from .forms import (
     NewCaseForm, NewCommentForm, CreateUserForm, AddUserForm, SignUpFormPatient, CaseEditForm, UploadFileForm,
     EditProfileForm, SignUpFormMedical, EditProfileFormMedical
 )
-from .decorators import admin_only, unauthenticated_user, allowed_users
-from .utils import get_group, GROUP_TO_IDX
+from .decorators import unauthenticated_user
+from .utils import get_group, GROUP_TO_IDX, get_token
 
 
-class IndexView(LoginRequiredMixin, generic.ListView):
+class IndexView(LoginRequiredMixin, View):
     template_name = 'cases/index.html'
     context_object_name = 'latest_cases_list'
+    form_class = NewCaseForm
+
+    # can be moved to setup()
+    @method_decorator(login_required)
+    def check_group(self, request):
+        group = get_group(request.user)
+        if not group:
+            group_name = 'hospital'
+            group = Group.objects.get(name=group_name)
+            request.user.groups.add(group)
 
     def get_queryset(self):
         # Last 20
@@ -33,50 +45,113 @@ class IndexView(LoginRequiredMixin, generic.ListView):
             is_active=True,
         ).order_by('-updated_date')[:20]
 
+    def get(self, request, *args, **kwargs):
+        self.check_group(request)
+        form = self.form_class()
+        bookmarked_cases = BookmarkedCase.objects.filter(user=request.user)
+        latest_cases_list = self.get_queryset()
+        return render(request, 'cases/index.html', {
+            'latest_cases_list': latest_cases_list,
+            'add_case': form,
+            'bookmarked_cases': bookmarked_cases,
+            'group': get_group(request.user),
+        })
 
-@login_required()
-def index_view(request):
-    latest_cases_list = Case.objects.filter(
-        users=request.user,
-        is_active=True
-    ).order_by('-updated_date')[:20]
-    form = None
-    if request.method == 'POST':
-        form = NewCaseForm(request.POST)
+    def post(self, request):
+        form = self.form_class(request.POST)
         if form.is_valid():
             patient_username = form.cleaned_data.get('patient_username')
             new_case = form.save(commit=False)
             new_case.save()
             patient_obj = User.objects.get(username=patient_username)
             new_case.users.set([request.user.pk, patient_obj.pk])
-            return HttpResponseRedirect(reverse('cases:index'))
-    else:
-        form = NewCaseForm()
-    bookmarked_cases = BookmarkedCase.objects.filter(user=request.user)
-    return render(request, 'cases/index.html', {
-        'latest_cases_list': latest_cases_list,
-        'add_case': form,
-        'bookmarked_cases': bookmarked_cases,
-        'group': get_group(request.user),
-    })
+            return HttpResponseRedirect(reverse_lazy('cases:index'))
 
 
-@login_required()
-def search_results(request):
-    query = request.GET.get('q')
-    search_fields = ['cases_short_name', 'cases_description']
-    cases = Case.objects.filter(
-        search_filter(search_fields, query),
-        users=request.user,
-    )
-    return render(request, 'cases/search-results.html', {'latest_cases_list': cases})
+# @login_required()
+# def index_view(request):
+#     group = get_group(User)
+#     if not group:
+#         pass
+#     latest_cases_list = Case.objects.filter(
+#         users=request.user,
+#         is_active=True
+#     ).order_by('-updated_date')[:20]
+#     form = None
+#     if request.method == 'POST':
+#         form = NewCaseForm(request.POST)
+#         if form.is_valid():
+#             patient_username = form.cleaned_data.get('patient_username')
+#             new_case = form.save(commit=False)
+#             new_case.save()
+#             patient_obj = User.objects.get(username=patient_username)
+#             new_case.users.set([request.user.pk, patient_obj.pk])
+#             return HttpResponseRedirect(reverse('cases:index'))
+#     else:
+#         form = NewCaseForm()
+#     bookmarked_cases = BookmarkedCase.objects.filter(user=request.user)
+#     return render(request, 'cases/index.html', {
+#         'latest_cases_list': latest_cases_list,
+#         'add_case': form,
+#         'bookmarked_cases': bookmarked_cases,
+#         'group': get_group(request.user),
+#     })
 
 
-def search_medical(request):
-    queries = request.GET.get('q')
-    if queries is not None:
+# @login_required()
+# def search_results(request):
+#     query = request.GET.get('q')
+#     search_fields = ['cases_short_name', 'cases_description']
+#     cases = Case.objects.filter(
+#         search_filter(search_fields, query),
+#         users=request.user,
+#     )
+#     return render(request, 'cases/search-results.html', {'latest_cases_list': cases})
+
+
+class SearchResults(LoginRequiredMixin, ListView):
+    template_name = 'cases/search-results.html'
+    context_object_name = 'latest_cases_list'
+
+    def get_queryset(self):
+        query = self.request.GET.get('q')
+        search_fields = ['cases_short_name', 'cases_description']
+        return Case.objects.filter(
+            search_filter(search_fields, query),
+            users=self.request.user,
+        )
+
+
+# def search_medical(request):
+#     queries = request.GET.get('q')
+#     if queries is not None:
+#         search_fields = ['username', 'address', 'mobile_no', 'emergency_mobile', 'pin_code', 'other_info']
+#         split_queries = queries.split()
+#         users = None
+#         for query in split_queries:
+#             current_users = User.objects.filter(
+#                 search_filter(search_fields, query),
+#                 is_active=True,
+#                 groups__name__in=['hospital', 'pharmacy', 'diagnosis_center'],
+#             )
+#             if users is None:
+#                 users = current_users
+#             else:
+#                 users = users.union(current_users)
+#         return render(request, 'cases/search-medical.html', {'users': users, 'search_term': queries})
+#     else:
+#         return render(request, 'cases/search-medical.html')
+
+
+class SearchMedical(ListView):
+    template_name = 'cases/search-medical.html'
+    context_object_name = 'users'
+    queries = ''
+
+    def get_queryset(self):
+        self.queries = self.request.GET.get('q')
         search_fields = ['username', 'address', 'mobile_no', 'emergency_mobile', 'pin_code', 'other_info']
-        split_queries = queries.split()
+        split_queries = self.queries.split()
         users = None
         for query in split_queries:
             current_users = User.objects.filter(
@@ -88,33 +163,58 @@ def search_medical(request):
                 users = current_users
             else:
                 users = users.union(current_users)
-        return render(request, 'cases/search-medical.html', {'users': users, 'search_term': queries})
-    else:
-        return render(request, 'cases/search-medical.html')
+        return users
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['search_term'] = self.queries
+        return context
 
 
-@login_required()
-def all_cases(request):
-    cases = Case.objects.filter(
-        users=request.user,
-    )
-    return render(request, 'cases/all_cases.html', {'latest_cases_list': cases})
+# @login_required()
+# def all_cases(request):
+#     cases = Case.objects.filter(
+#         users=request.user,
+#     )
+#     return render(request, 'cases/all_cases.html', {'latest_cases_list': cases})
 
 
-@login_required
-def add_case(request):
-    if request.method == 'POST':
-        form = NewCaseForm(request.POST)
-        if form.is_valid():
-            patient_username = form.cleaned_data.get('patient_username')
-            new_case = form.save(commit=False)
-            new_case.save()
-            patient_obj = User.objects.get(username=patient_username)
-            new_case.users.set([request.user.pk, patient_obj.pk])
-            return HttpResponseRedirect(reverse('cases:add_case'))
-    else:
-        form = NewCaseForm()
-    return render(request, 'cases/add_case.html', {'form': form})
+class AllCases(LoginRequiredMixin, ListView):
+    template_name = 'cases/all_cases.html'
+    context_object_name = 'latest_cases_list'
+
+    def get_queryset(self):
+        return Case.objects.filter(users=self.request.user)
+
+
+# @login_required
+# def add_case(request):
+#     if request.method == 'POST':
+#         form = NewCaseForm(request.POST)
+#         if form.is_valid():
+#             patient_username = form.cleaned_data.get('patient_username')
+#             new_case = form.save(commit=False)
+#             new_case.save()
+#             patient_obj = User.objects.get(username=patient_username)
+#             new_case.users.set([request.user.pk, patient_obj.pk])
+#             return HttpResponseRedirect(reverse('cases:add_case'))
+#     else:
+#         form = NewCaseForm()
+#     return render(request, 'cases/add_case.html', {'form': form})
+
+
+class AddCase(LoginRequiredMixin, FormView):
+    form_class = NewCaseForm
+    template_name = 'cases/add_case.html'
+    success_url = reverse_lazy('cases:add_case')
+
+    def form_valid(self, form):
+        patient_username = form.cleaned_data.get('patient_username')
+        new_case = form.save(commit=False)
+        new_case.save()
+        patient_obj = User.objects.get(username=patient_username)
+        new_case.users.set([self.request.user.pk, patient_obj.pk])
+        super().form_valid(form)
 
 
 @login_required
@@ -177,6 +277,72 @@ def details(request, pk):
     )
 
 
+# class Details(LoginRequiredMixin, View):
+#     template_name = 'cases/details.html'
+#     case = None
+#     comments = None
+#     documents = None
+#     new_comment_form = NewCommentForm(prefix='new-comment')
+#     add_user_form = AddUserForm(prefix='add-user')
+#     upload_file_form = UploadFileForm(prefix='upload-file')
+#
+#     def get(self, request, pk):
+#         self.case = get_object_or_404(Case, pk=pk)
+#         if request.user not in self.case.users.all():
+#             raise PermissionDenied()
+#         self.comments = self.case.comments.all()
+#         self.documents = self.case.documents.all()
+#         return render(
+#             request,
+#             self.template_name,
+#             {
+#                 'case': self.case,
+#                 'patient': User.objects.get(username=self.case.patient_username),
+#                 'comments': {
+#                     'hospital': self.comments.filter(comment_type=1),
+#                     'prescription': self.comments.filter(comment_type=2),
+#                     'diagnosis': self.comments.filter(comment_type=3),
+#                 },
+#                 'files': {
+#                     'hospital': self.documents.filter(document_type=1),
+#                     'prescription': self.documents.filter(document_type=2),
+#                     'diagnosis': self.documents.filter(document_type=3),
+#                 },
+#                 'new_comment_form': self.new_comment_form,
+#                 'add_user_form': self.add_user_form,
+#                 'upload_file_form': self.upload_file_form,
+#                 'group': get_group(request.user),
+#                 'users': self.case.users.filter(groups__name__in=['pharmacy', 'diagnosis_center']),
+#                 'patient_username': self.case.patient_username,
+#                 'hospitals': self.case.users.filter(groups__name='hospital'),
+#                 'all_user': User.objects.exclude(username=[user.username for user in self.case.users.all()]),
+#             },
+#         )
+#
+#     def post(self, request):
+#         if 'new-comment' in request.POST:
+#             self.new_comment_form = NewCommentForm(data=request.POST, prefix='new-comment')
+#             if self.new_comment_form.is_valid():
+#                 self.new_comment_form.instance.user = request.user
+#                 new_comment = self.new_comment_form.save(commit=False)
+#                 new_comment.case = self.case
+#                 new_comment.save()
+#         elif 'add-user' in request.POST:
+#             self.add_user_form = AddUserForm(data=request.POST, prefix='add-user')
+#             if self.add_user_form.is_valid():
+#                 user_to_add = self.add_user_form.cleaned_data.get('user_name')
+#                 user_obj = User.objects.get(username=user_to_add)
+#                 self.case.users.add(user_obj.pk)
+#         elif 'upload-file' in request.POST:
+#             self.upload_file_form = UploadFileForm(request.POST, request.FILES, prefix='upload-file')
+#             print(self.upload_file_form.errors)
+#             if self.upload_file_form.is_valid():
+#                 self.upload_file_form.instance.user = request.user
+#                 uploaded_file = self.upload_file_form.save(commit=False)
+#                 uploaded_file.case = self.case
+#                 uploaded_file.save()
+
+
 @login_required
 def add_user(request):
     if request.user.is_staff:
@@ -212,75 +378,132 @@ def add_user_to_case(request):
     return JsonResponse(data)
 
 
-@login_required
-def remove_user(request):
-    data = {}
-    group = get_group(request.user)
-    username = request.POST.get('username')
-    case_id = request.POST.get('case_id')
-    case = Case.objects.get(id=case_id)
-    # make sure user is part of case
-    if request.user not in case.users.all() or group > 2:
-        message = "You're not authorized to remove a user!"
-    elif group == 1:
-        message = "Patient cannot be removed from a case!"
-    else:
-        user_to_remove = User.objects.get(username=username)
-        if get_group(user_to_remove) == 2:
-            message = 'Cannot remove hospital!'
+# @login_required
+# def remove_user(request):
+#     data = {}
+#     group = get_group(request.user)
+#     username = request.POST.get('username')
+#     case_id = request.POST.get('case_id')
+#     case = Case.objects.get(id=case_id)
+#     # make sure user is part of case
+#     if request.user not in case.users.all() or group > 2:
+#         message = "You're not authorized to remove a user!"
+#     elif group == 1:
+#         message = "Patient cannot be removed from a case!"
+#     else:
+#         user_to_remove = User.objects.get(username=username)
+#         if get_group(user_to_remove) == 2:
+#             message = 'Cannot remove hospital!'
+#         else:
+#             case.users.remove(user_to_remove)
+#             message = f"Removed {username}"
+#     data['message'] = message
+#     return JsonResponse(data=data)
+
+
+class RemoveUser(LoginRequiredMixin, View):
+
+    def post(self, request):
+        data = {}
+        group = get_group(request.user)
+        username = request.POST.get('username')
+        case_id = request.POST.get('case_id')
+        case = Case.objects.get(id=case_id)
+        # make sure user is part of case
+        if request.user not in case.users.all() or group > 2:
+            message = "You're not authorized to remove a user!"
+        elif group == 1:
+            message = "Patient cannot be removed from a case!"
         else:
-            case.users.remove(user_to_remove)
-            message = f"Removed {username}"
-    data['message'] = message
-    return JsonResponse(data=data)
+            user_to_remove = User.objects.get(username=username)
+            if get_group(user_to_remove) == 2:
+                message = 'Cannot remove hospital!'
+            else:
+                case.users.remove(user_to_remove)
+                message = f"Removed {username}"
+        data['message'] = message
+        return JsonResponse(data=data)
 
 
-@unauthenticated_user
-def sign_up(request):
-    form = SignUpFormPatient()
-    if request.method == 'POST':
-        form = SignUpFormPatient(request.POST)
-        print(form.errors)
-        if form.is_valid():
-            user = form.save()
-            username = form.cleaned_data.get('username')
-            group_name = 'patient'
-            group = Group.objects.get(name=group_name)
-            user.groups.add(group)
-            return redirect('/accounts/login')
-    return render(request, 'registration/sign_up.html', {'form': form})
+# @unauthenticated_user
+# def sign_up(request):
+#     form = SignUpFormPatient()
+#     if request.method == 'POST':
+#         form = SignUpFormPatient(request.POST)
+#         print(form.errors)
+#         if form.is_valid():
+#             user = form.save()
+#             username = form.cleaned_data.get('username')
+#             group_name = 'patient'
+#             group = Group.objects.get(name=group_name)
+#             user.groups.add(group)
+#             return redirect('/accounts/login')
+#     return render(request, 'registration/sign_up.html', {'form': form})
 
 
-def sign_up_medical(request):
-    form = SignUpFormMedical()
-    if request.method == 'POST':
-        form = SignUpFormMedical(request.POST, request.FILES)
-        print(form.errors)
-        if form.is_valid():
-            user = form.save()
-            group_name = form.cleaned_data.get('group_name')
-            group = Group.objects.get(name=group_name)
-            user.groups.add(group)
-            user.is_active = False
-            user.save()
-            return redirect('cases:approval_required')
-    return render(request, 'registration/sign_up.html', {'form': form, 'medical': True})
+class SignUp(FormView):
+    template_name = 'registration/sign_up.html'
+    form_class = SignUpFormPatient
+    success_url = '/accounts/login'
+
+    def form_valid(self, form):
+        user = form.save()
+        username = form.cleaned_data.get('username')
+        group_name = 'patient'
+        group = Group.objects.get(name=group_name)
+        user.groups.add(group)
+        return super().form_valid(form)
 
 
-@login_required()
-def change_password(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            update_session_auth_hash(request, user)  # User doesn't need to log in again
-            messages.success(request, f"{user.username}'s password was successfully updated!")
-            return redirect('cases:index')
-        else:
-            messages.error(request, 'Error found! Please correct the error below.')
-    else:
-        form = PasswordChangeForm(request.user)
-    return render(request, 'registration/change_password.html', {'form': form})
+# def sign_up_medical(request):
+#     form = SignUpFormMedical()
+#     if request.method == 'POST':
+#         form = SignUpFormMedical(request.POST, request.FILES)
+#         print(form.errors)
+#         if form.is_valid():
+#             user = form.save()
+#             group_name = form.cleaned_data.get('group_name')
+#             group = Group.objects.get(name=group_name)
+#             user.groups.add(group)
+#             user.is_active = False
+#             user.save()
+#             return redirect('cases:approval_required')
+#     return render(request, 'registration/sign_up.html', {'form': form, 'medical': True})
+
+
+class SignUpMedical(View):
+    template_name = 'registration/sign_up.html'
+    success_url = 'signup/medical/approval-required'
+    sign_up_form_medical = SignUpFormMedical
+
+    def post(self, request):
+        form = self.sign_up_form_medical(request.POST, request.FILES)
+        user = form.save()
+        group_name = form.cleaned_data.get('group_name')
+        group = Group.objects.get(name=group_name)
+        user.groups.add(group)
+        user.is_active = False
+        user.save()
+        return redirect('cases:approval_required')
+
+    def get(self, request):
+        return render(request, 'registration/sign_up.html', {'form': self.sign_up_form_medical(), 'medical': True})
+
+
+# @login_required()
+# def change_password(request):
+#     if request.method == 'POST':
+#         form = PasswordChangeForm(request.user, request.POST)
+#         if form.is_valid():
+#             user = form.save()
+#             update_session_auth_hash(request, user)  # User doesn't need to log in again
+#             messages.success(request, f"{user.username}'s password was successfully updated!")
+#             return redirect('cases:index')
+#         else:
+#             messages.error(request, 'Error found! Please correct the error below.')
+#     else:
+#         form = PasswordChangeForm(request.user)
+#     return render(request, 'registration/change_password.html', {'form': form})
 
 
 def save_comment_form(request, form, pk, template_name):
@@ -430,19 +653,43 @@ def view_profile(request, username):
         raise PermissionDenied()
 
 
-@login_required
-def show_library(request):
-    current_library = MyLibrary.objects.filter(user=request.user)
-    return render(request, 'cases/library.html', {'library': current_library, 'remove': True})
+# @login_required
+# def show_library(request):
+#     current_library = MyLibrary.objects.filter(user=request.user)
+#     return render(request, 'cases/library.html', {'library': current_library, 'remove': True})
 
 
-@login_required()
-def dashboard(request):
-    if request.user.is_staff:
-        unapproved_users = User.objects.filter(is_active=False)
-        return render(request, 'dashboard/dashboard.html', {'users': unapproved_users})
-    else:
-        raise PermissionDenied()
+class ShowLibrary(LoginRequiredMixin, ListView):
+    template_name = 'cases/library.html'
+    context_object_name = 'library'
+
+    def get_queryset(self):
+        return MyLibrary.objects.filter(user=self.request.user)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['remove'] = True
+        return context
+
+
+# @login_required()
+# def dashboard(request):
+#     if request.user.is_staff:
+#         unapproved_users = User.objects.filter(is_active=False)
+#         return render(request, 'dashboard/dashboard.html', {'users': unapproved_users})
+#     else:
+#         raise PermissionDenied()
+
+
+class Dashboard(LoginRequiredMixin, ListView):
+    template_name = 'dashboard/dashboard.html'
+    context_object_name = 'users'
+
+    def get_queryset(self):
+        if self.request.user.is_staff:
+            return User.objects.filter(is_active=False)
+        else:
+            raise PermissionDenied()
 
 
 @login_required()

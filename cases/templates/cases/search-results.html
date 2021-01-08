@@ -3,21 +3,20 @@
 {% block title %} Search Results | {% endblock %}
 
 {% block content %}
-<div class="row">
+<div class="container row">
     <div class="recent-cases">
-        <div class="col s12 m6">
+        <div class="col s12 m12">
         <h2>Search Results</h2>
             {% if latest_cases_list %}
                 {% for case in latest_cases_list %}
-                <div class="card white darken-1">
-                    <div class="card-content black-text">
-                        <span class="card-title">{{ case.cases_short_name }}</span>
-                        <p>{{ case.cases_description | safe | slice:":300"}}</p>
-                    </div>
-                    <div class="card-action">
-                        <a href="{% url 'cases:details' case.id %}">MORE</a>
-                    </div>
-                </div>
+                    <a href="{% url 'cases:details' case.id %}">
+                        <div class="card white darken-1">
+                            <div class="card-content black-text">
+                                <span class="card-title">{{ case.cases_short_name }}</span>
+                                <p>{{ case.cases_description | safe }}</p>
+                            </div>
+                        </div>
+                    </a>
                 {% endfor %}
             {% else %}
                 <div class="no-active-cases"></div>

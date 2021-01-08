@@ -28,6 +28,7 @@ urlpatterns = [
     path('', include('cases.urls')),
     path('admin/', admin.site.urls),
     path('robots.txt', TemplateView.as_view(template_name="robots.txt", content_type="text/plain")),
+    url(r'', include('social.apps.django_app.urls', namespace='social')),
     url(r'^ckeditor/upload/', login_required(ckeditor_views.upload), name='ckeditor_upload'),
     url(r'^ckeditor/browse/', login_required(ckeditor_views.browse), name='ckeditor_browse'),
 ]

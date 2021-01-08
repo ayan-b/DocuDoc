@@ -23,6 +23,10 @@ class User(AbstractUser):
     # not required for patients
     license = models.FileField(blank=True)
     other_info = models.TextField(blank=True, null=True)
+    # drchrono tokens
+    access_token = models.CharField(max_length=40, blank=True, null=True)
+    refresh_token = models.CharField(max_length=40, blank=True, null=True)
+    expires_in = models.DateTimeField(blank=True, null=True)
 
     @staticmethod
     def get_group(self):

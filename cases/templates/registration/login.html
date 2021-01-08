@@ -3,17 +3,18 @@
 {% block title %} Log In | {% endblock %}
 {% block content %}
     <div class="container">
-    <div class="card card-panel">
-    <div id="login" class="container">
-        <h2>Log In</h2>
-          <form method="post">
-            {% csrf_token %}
-            {% form %} {% endform %}
-            <button class="btn waves-effect waves-light" type="submit">Log In
-            <i class="material-icons right">send</i>
-            </button>
-          </form>
-    </div>
-    </div>
+        <div class="card card-panel">
+            <div id="login" class="container">
+                <h2>Log In</h2>
+                  <form method="post">
+                    {% csrf_token %}
+                    {% form %} {% endform %}
+                    <button class="btn waves-effect waves-light" type="submit">Log In
+                    <i class="material-icons right">send</i>
+                    </button>
+                  </form>
+                <a href="{% url 'social:begin' 'drchrono' %}"><button class="btn">Log In with DrChrono</button></a>
+            </div>
+        </div>
     </div>
 {% endblock %}
