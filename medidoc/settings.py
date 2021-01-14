@@ -84,6 +84,7 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = [
     'social_auth_drchrono.backends.drchronoOAuth2',
+    'social_auth_drchrono.backends.onpatientOAuth2',
     'django.contrib.auth.backends.ModelBackend',
 ]
 
@@ -166,8 +167,11 @@ USE_L10N = True
 
 USE_TZ = True
 
-SOCIAL_AUTH_DRCHRONO_KEY = 'HgEutH1AWHjLw1RaXz8hTZRhBq1bFkjGLF5tJ37s'
-SOCIAL_AUTH_DRCHRONO_SECRET = '036DIWSCaoWCNoRmRosWgIDKmczjKjoDRY5KTOtqPSsYaqNfz9fxGKkjPnR1c3d91F5GbomMFLFCe6zDdH9s9oGlK3p0tjsYqqHTqcFljiX1o9lG50w55aVpPKH9OM1A'
+SOCIAL_AUTH_DRCHRONO_KEY = os.getenv('SOCIAL_AUTH_DRCHRONO_KEY')
+SOCIAL_AUTH_DRCHRONO_SECRET = os.getenv('SOCIAL_AUTH_DRCHRONO_SECRET')
+
+SOCIAL_AUTH_ONPATIENT_KEY = os.getenv('SOCIAL_AUTH_ONPATIENT_KEY')
+SOCIAL_AUTH_ONPATIENT_SECRET = os.getenv('SOCIAL_AUTH_ONPATIENT_SECRET')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/

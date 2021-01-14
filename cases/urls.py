@@ -41,7 +41,7 @@ urlpatterns = [
     path('cases/<int:pk>', view=views.details, name='details'),
     path('cases/<int:pk>/edit', view=views.case_edit, name='edit_case'),
     path('comments/<int:pk>/edit/', view=views.comment_edit, name='edit_comment'),
-    path('comments/<int:pk>/delete/', view=views.delete_comment, name='delete_comment'),
+    path('comments/<int:pk>/delete/', view=views.DeleteComment.as_view(), name='delete_comment'),
     url(r'search-medical', view=views.SearchMedical.as_view(), name='search_medical'),
     url(r'search', view=views.SearchResults.as_view(), name='search_results'),
     path('all', view=views.AllCases.as_view(), name='all_cases'),
@@ -54,5 +54,5 @@ urlpatterns = [
 
     # admin-related stuff
     path('dashboard/', view=views.Dashboard.as_view(), name='dashboard'),
-    path('dashboard/approve/<int:pk>', view=views.approve, name='approve'),
+    path('dashboard/approve/<int:pk>', view=views.Approve.as_view(), name='approve'),
 ]

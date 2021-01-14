@@ -12,7 +12,7 @@ from django.views import generic, View
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.timezone import now
-from django.views.generic import TemplateView, ListView, FormView
+from django.views.generic import TemplateView, ListView, FormView, DeleteView
 from simple_search import search_filter
 
 from .models import Case, Comment, User, MyLibrary, Document, BookmarkedCase
@@ -68,47 +68,6 @@ class IndexView(LoginRequiredMixin, View):
             return HttpResponseRedirect(reverse_lazy('cases:index'))
 
 
-# @login_required()
-# def index_view(request):
-#     group = get_group(User)
-#     if not group:
-#         pass
-#     latest_cases_list = Case.objects.filter(
-#         users=request.user,
-#         is_active=True
-#     ).order_by('-updated_date')[:20]
-#     form = None
-#     if request.method == 'POST':
-#         form = NewCaseForm(request.POST)
-#         if form.is_valid():
-#             patient_username = form.cleaned_data.get('patient_username')
-#             new_case = form.save(commit=False)
-#             new_case.save()
-#             patient_obj = User.objects.get(username=patient_username)
-#             new_case.users.set([request.user.pk, patient_obj.pk])
-#             return HttpResponseRedirect(reverse('cases:index'))
-#     else:
-#         form = NewCaseForm()
-#     bookmarked_cases = BookmarkedCase.objects.filter(user=request.user)
-#     return render(request, 'cases/index.html', {
-#         'latest_cases_list': latest_cases_list,
-#         'add_case': form,
-#         'bookmarked_cases': bookmarked_cases,
-#         'group': get_group(request.user),
-#     })
-
-
-# @login_required()
-# def search_results(request):
-#     query = request.GET.get('q')
-#     search_fields = ['cases_short_name', 'cases_description']
-#     cases = Case.objects.filter(
-#         search_filter(search_fields, query),
-#         users=request.user,
-#     )
-#     return render(request, 'cases/search-results.html', {'latest_cases_list': cases})
-
-
 class SearchResults(LoginRequiredMixin, ListView):
     template_name = 'cases/search-results.html'
     context_object_name = 'latest_cases_list'
@@ -120,27 +79,6 @@ class SearchResults(LoginRequiredMixin, ListView):
             search_filter(search_fields, query),
             users=self.request.user,
         )
-
-
-# def search_medical(request):
-#     queries = request.GET.get('q')
-#     if queries is not None:
-#         search_fields = ['username', 'address', 'mobile_no', 'emergency_mobile', 'pin_code', 'other_info']
-#         split_queries = queries.split()
-#         users = None
-#         for query in split_queries:
-#             current_users = User.objects.filter(
-#                 search_filter(search_fields, query),
-#                 is_active=True,
-#                 groups__name__in=['hospital', 'pharmacy', 'diagnosis_center'],
-#             )
-#             if users is None:
-#                 users = current_users
-#             else:
-#                 users = users.union(current_users)
-#         return render(request, 'cases/search-medical.html', {'users': users, 'search_term': queries})
-#     else:
-#         return render(request, 'cases/search-medical.html')
 
 
 class SearchMedical(ListView):
@@ -171,36 +109,12 @@ class SearchMedical(ListView):
         return context
 
 
-# @login_required()
-# def all_cases(request):
-#     cases = Case.objects.filter(
-#         users=request.user,
-#     )
-#     return render(request, 'cases/all_cases.html', {'latest_cases_list': cases})
-
-
 class AllCases(LoginRequiredMixin, ListView):
     template_name = 'cases/all_cases.html'
     context_object_name = 'latest_cases_list'
 
     def get_queryset(self):
         return Case.objects.filter(users=self.request.user)
-
-
-# @login_required
-# def add_case(request):
-#     if request.method == 'POST':
-#         form = NewCaseForm(request.POST)
-#         if form.is_valid():
-#             patient_username = form.cleaned_data.get('patient_username')
-#             new_case = form.save(commit=False)
-#             new_case.save()
-#             patient_obj = User.objects.get(username=patient_username)
-#             new_case.users.set([request.user.pk, patient_obj.pk])
-#             return HttpResponseRedirect(reverse('cases:add_case'))
-#     else:
-#         form = NewCaseForm()
-#     return render(request, 'cases/add_case.html', {'form': form})
 
 
 class AddCase(LoginRequiredMixin, FormView):
@@ -378,29 +292,6 @@ def add_user_to_case(request):
     return JsonResponse(data)
 
 
-# @login_required
-# def remove_user(request):
-#     data = {}
-#     group = get_group(request.user)
-#     username = request.POST.get('username')
-#     case_id = request.POST.get('case_id')
-#     case = Case.objects.get(id=case_id)
-#     # make sure user is part of case
-#     if request.user not in case.users.all() or group > 2:
-#         message = "You're not authorized to remove a user!"
-#     elif group == 1:
-#         message = "Patient cannot be removed from a case!"
-#     else:
-#         user_to_remove = User.objects.get(username=username)
-#         if get_group(user_to_remove) == 2:
-#             message = 'Cannot remove hospital!'
-#         else:
-#             case.users.remove(user_to_remove)
-#             message = f"Removed {username}"
-#     data['message'] = message
-#     return JsonResponse(data=data)
-
-
 class RemoveUser(LoginRequiredMixin, View):
 
     def post(self, request):
@@ -425,22 +316,6 @@ class RemoveUser(LoginRequiredMixin, View):
         return JsonResponse(data=data)
 
 
-# @unauthenticated_user
-# def sign_up(request):
-#     form = SignUpFormPatient()
-#     if request.method == 'POST':
-#         form = SignUpFormPatient(request.POST)
-#         print(form.errors)
-#         if form.is_valid():
-#             user = form.save()
-#             username = form.cleaned_data.get('username')
-#             group_name = 'patient'
-#             group = Group.objects.get(name=group_name)
-#             user.groups.add(group)
-#             return redirect('/accounts/login')
-#     return render(request, 'registration/sign_up.html', {'form': form})
-
-
 class SignUp(FormView):
     template_name = 'registration/sign_up.html'
     form_class = SignUpFormPatient
@@ -453,22 +328,6 @@ class SignUp(FormView):
         group = Group.objects.get(name=group_name)
         user.groups.add(group)
         return super().form_valid(form)
-
-
-# def sign_up_medical(request):
-#     form = SignUpFormMedical()
-#     if request.method == 'POST':
-#         form = SignUpFormMedical(request.POST, request.FILES)
-#         print(form.errors)
-#         if form.is_valid():
-#             user = form.save()
-#             group_name = form.cleaned_data.get('group_name')
-#             group = Group.objects.get(name=group_name)
-#             user.groups.add(group)
-#             user.is_active = False
-#             user.save()
-#             return redirect('cases:approval_required')
-#     return render(request, 'registration/sign_up.html', {'form': form, 'medical': True})
 
 
 class SignUpMedical(View):
@@ -488,22 +347,6 @@ class SignUpMedical(View):
 
     def get(self, request):
         return render(request, 'registration/sign_up.html', {'form': self.sign_up_form_medical(), 'medical': True})
-
-
-# @login_required()
-# def change_password(request):
-#     if request.method == 'POST':
-#         form = PasswordChangeForm(request.user, request.POST)
-#         if form.is_valid():
-#             user = form.save()
-#             update_session_auth_hash(request, user)  # User doesn't need to log in again
-#             messages.success(request, f"{user.username}'s password was successfully updated!")
-#             return redirect('cases:index')
-#         else:
-#             messages.error(request, 'Error found! Please correct the error below.')
-#     else:
-#         form = PasswordChangeForm(request.user)
-#     return render(request, 'registration/change_password.html', {'form': form})
 
 
 def save_comment_form(request, form, pk, template_name):
@@ -653,12 +496,6 @@ def view_profile(request, username):
         raise PermissionDenied()
 
 
-# @login_required
-# def show_library(request):
-#     current_library = MyLibrary.objects.filter(user=request.user)
-#     return render(request, 'cases/library.html', {'library': current_library, 'remove': True})
-
-
 class ShowLibrary(LoginRequiredMixin, ListView):
     template_name = 'cases/library.html'
     context_object_name = 'library'
@@ -672,15 +509,6 @@ class ShowLibrary(LoginRequiredMixin, ListView):
         return context
 
 
-# @login_required()
-# def dashboard(request):
-#     if request.user.is_staff:
-#         unapproved_users = User.objects.filter(is_active=False)
-#         return render(request, 'dashboard/dashboard.html', {'users': unapproved_users})
-#     else:
-#         raise PermissionDenied()
-
-
 class Dashboard(LoginRequiredMixin, ListView):
     template_name = 'dashboard/dashboard.html'
     context_object_name = 'users'
@@ -692,23 +520,46 @@ class Dashboard(LoginRequiredMixin, ListView):
             raise PermissionDenied()
 
 
-@login_required()
-def approve(request, pk):
-    if request.user.is_staff:
-        user = User.objects.get(id=pk)
-        user.is_active = True
-        user.save()
-        data = {'message': f'Approved user {user.username}'}
+# @login_required()
+# def approve(request, pk):
+#     if request.user.is_staff:
+#         user = User.objects.get(id=pk)
+#         user.is_active = True
+#         user.save()
+#         data = {'message': f'Approved user {user.username}'}
+#         return JsonResponse(data=data)
+#     else:
+#         raise PermissionDenied()
+
+
+class Approve(LoginRequiredMixin, View):
+
+    def post(self, request, *args, **kwargs):
+        print(kwargs)
+        if request.user.is_staff:
+            user = User.objects.get(id=kwargs['pk'])
+            user.is_active = True
+            user.save()
+            data = {'message': f'Approved user {user.username}'}
+            return JsonResponse(data=data)
+        else:
+            raise PermissionDenied()
+
+
+# @login_required()
+# def delete_comment(request, pk):
+#     Comment.objects.filter(id=pk).delete()
+#     data = {'message': 'Comment deleted'}
+#     return JsonResponse(data=data)
+
+
+class DeleteComment(LoginRequiredMixin, DeleteView):
+    model = Comment
+
+    def delete(self, request, *args, **kwargs):
+        self.get_object().delete()
+        data = {'message': 'Comment deleted'}
         return JsonResponse(data=data)
-    else:
-        raise PermissionDenied()
-
-
-@login_required()
-def delete_comment(request, pk):
-    Comment.objects.filter(id=pk).delete()
-    data = {'message': 'Comment deleted'}
-    return JsonResponse(data=data)
 
 
 # Error code: 400
