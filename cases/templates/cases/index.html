@@ -32,7 +32,7 @@
     <div class="col s12 m6">
         <div class="search-box">
             <h2>Search</h2>
-            <form id="form" action="/search">
+            <form id="form" action="{% url 'cases:search_results' %}">
                 <div class="input-field">
                 <i class="material-icons prefix">search</i>
                     <input type="search" id="query" name="q" placeholder="Search for Cases...">
@@ -46,11 +46,24 @@
 {#    Only hospital can create cases#}
     {% if group == 2 %}
     <div class="fixed-action-btn">
-        <a class="btn-floating btn-large waves-effect waves-light red z-depth-2 modal-trigger" href="#add-cases">
+        <a class="btn-floating btn-large waves-effect waves-light red z-depth-2 modal-trigger" href="#">
             <i class="large material-icons">add</i>
         </a>
+        <ul>
+            <li>
+                <a href="#import" class="btn-floating red tooltipped modal-trigger" data-position="left" data-tooltip="Import from DrChrono">
+                    <i class="material-icons">input</i>
+                </a>
+            </li>
+            <li>
+                <a class="btn-floating red modal-trigger tooltipped modal-trigger" data-position="left" data-tooltip="Manually Add" href="#add-cases">
+                    <i class="large material-icons">create</i>
+                </a>
+            </li>
+        </ul>
     </div>
 {% include 'cases/add_case.html' %}
+{% include 'cases/drchrono-import-modal.html' %}
 {% endif %}
 </div>
 {% endblock %}
@@ -115,5 +128,15 @@
         $(".recent-cases").on("click", ".js-add-to-bookmark", bookmarkCase);
         $("#bookmarked-cases").on("click", ".js-remove-from-bookmark", unbookmarkCase);
     });
+    </script>
+    <script>
+    $(document).ready(function(){
+        $('.tooltipped').tooltip();
+    });
+    </script>
+    <script>
+      $(document).ready(function(){
+        $('.fixed-action-btn').floatingActionButton();
+      });
     </script>
 {% endblock %}

@@ -11,7 +11,7 @@
 {#For mobile#}
 <ul class="sidenav" id="mobile-sidenav">
     {% if user.is_authenticated %}
-        <li><a><i class="material-icons left"></i>Hi {{ user.username }}!</li></a>
+        <li><a><i class="material-icons left"></i>Hi {{ user.username }}!</a></li>
     {% endif %}
     <li><a href="{% url 'cases:search_medical' %}"><i class="material-icons left">search</i>Medical Search</a></li>
     {% if user.is_authenticated %}
@@ -31,7 +31,7 @@
         <li><a href="{% url 'cases:signup' %}"><i class="material-icons left">person_add</i>Sign Up</a></li>
     {% endif %}
 </ul>
-<nav>
+<nav class="black">
     <div class="nav-wrapper">
         <a href="{% url 'cases:index' %}" class="brand-logo">
             <i><img src="{% static 'cases/logo.svg' %}" alt="logo" style="max-height: 100%;"></i>
