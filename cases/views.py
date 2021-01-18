@@ -1,27 +1,33 @@
+from datetime import datetime, timedelta
+
 from django.contrib import messages
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.models import Group
 from django.contrib.auth.decorators import login_required
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.http.response import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import render_to_string
 from django.utils.decorators import method_decorator
+from django.utils.html import strip_tags
 from django.views import generic, View
 from django.urls import reverse, reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.utils.timezone import now
 from django.views.generic import TemplateView, ListView, FormView, DeleteView
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from simple_search import search_filter
 
+from .endpoints import AppointmentEndpoint, ClinicalNotes, PatientEndpoint, ClinicalNotesField
 from .models import Case, Comment, User, MyLibrary, Document, BookmarkedCase
 from .forms import (
     NewCaseForm, NewCommentForm, CreateUserForm, AddUserForm, SignUpFormPatient, CaseEditForm, UploadFileForm,
-    EditProfileForm, SignUpFormMedical, EditProfileFormMedical
+    EditProfileForm, SignUpFormMedical, EditProfileFormMedical, AddToClinicalNoteForm
 )
 from .decorators import unauthenticated_user
-from .utils import get_group, GROUP_TO_IDX, get_token
+from .utils import get_group, GROUP_TO_IDX, get_token, get_clinical_note_field
 
 
 class IndexView(LoginRequiredMixin, View):
@@ -61,10 +67,44 @@ class IndexView(LoginRequiredMixin, View):
         form = self.form_class(request.POST)
         if form.is_valid():
             patient_username = form.cleaned_data.get('patient_username')
+            # this is email
+            # if this patient doesn't exist create an account for them
+            if not User.objects.filter(email=patient_username).exists():
+                # get the patient info
+                try:
+                    validate_email(patient_username)
+                except ValidationError as e:
+                    params = {'chart_id': patient_username}
+                else:
+                    params = {'email': patient_username}
+                access_token = get_token()
+                patient_info = next(PatientEndpoint(access_token).list(params))
+                new_user = User(
+                    username=patient_info.get('email') or patient_info.get('chart_id'),
+                    id=patient_info['id'],
+                    first_name=patient_info['first_name'],
+                    last_name=patient_info['last_name'],
+                    email=patient_info.get('email'),
+                    gender=patient_info['gender'],
+                    birthdate=patient_info['date_of_birth'],
+                    mobile_no=patient_info['cell_phone'],
+                    emergency_mobile=patient_info['home_phone'],
+                    address=patient_info['address'],
+                )
+                new_user.save()
+                # Add to patient group
+                group = Group.objects.get(name='patient')
+                new_user.groups.add(group)
             new_case = form.save(commit=False)
             new_case.save()
-            patient_obj = User.objects.get(username=patient_username)
+            # TODO: Handle username
+            try:
+                patient_obj = User.objects.get(username=patient_username)
+            except ObjectDoesNotExist:
+                patient_obj = User.objects.get(email=patient_username)
             new_case.users.set([request.user.pk, patient_obj.pk])
+            new_case = form.save(commit=False)
+            new_case.save()
             return HttpResponseRedirect(reverse_lazy('cases:index'))
 
 
@@ -124,9 +164,26 @@ class AddCase(LoginRequiredMixin, FormView):
 
     def form_valid(self, form):
         patient_username = form.cleaned_data.get('patient_username')
+        # this is email
+        # if this patient doesn't exist create an account for them
+        if not User.objects.filter(email=patient_username).exists():
+            # get the patient info
+            params = {'email': patient_username}
+            patient_info = (PatientEndpoint(params).list())[0]
+            print(patient_info)
+            new_user = User(
+                username=patient_info['email'],
+                first_name=patient_info['first_name'],
+                last_name=patient_info['last_name'],
+                email=patient_info['email'],
+                gender=patient_info['gender'],
+                birthdate=patient_info['date_of_birth']
+            )
+            new_user.save()
         new_case = form.save(commit=False)
         new_case.save()
-        patient_obj = User.objects.get(username=patient_username)
+        # TODO: Handle username
+        patient_obj = User.objects.get(email=patient_username)
         new_case.users.set([self.request.user.pk, patient_obj.pk])
         super().form_valid(form)
 
@@ -182,6 +239,7 @@ def details(request, pk):
             'new_comment_form': new_comment_form,
             'add_user_form': add_user_form,
             'upload_file_form': upload_file_form,
+            'add_to_clinical_note': AddToClinicalNoteForm(),
             'group': get_group(request.user),
             'users': case.users.filter(groups__name__in=['pharmacy', 'diagnosis_center']),
             'patient_username': case.patient_username,
@@ -191,70 +249,46 @@ def details(request, pk):
     )
 
 
-# class Details(LoginRequiredMixin, View):
-#     template_name = 'cases/details.html'
-#     case = None
-#     comments = None
-#     documents = None
-#     new_comment_form = NewCommentForm(prefix='new-comment')
-#     add_user_form = AddUserForm(prefix='add-user')
-#     upload_file_form = UploadFileForm(prefix='upload-file')
-#
-#     def get(self, request, pk):
-#         self.case = get_object_or_404(Case, pk=pk)
-#         if request.user not in self.case.users.all():
-#             raise PermissionDenied()
-#         self.comments = self.case.comments.all()
-#         self.documents = self.case.documents.all()
-#         return render(
-#             request,
-#             self.template_name,
-#             {
-#                 'case': self.case,
-#                 'patient': User.objects.get(username=self.case.patient_username),
-#                 'comments': {
-#                     'hospital': self.comments.filter(comment_type=1),
-#                     'prescription': self.comments.filter(comment_type=2),
-#                     'diagnosis': self.comments.filter(comment_type=3),
-#                 },
-#                 'files': {
-#                     'hospital': self.documents.filter(document_type=1),
-#                     'prescription': self.documents.filter(document_type=2),
-#                     'diagnosis': self.documents.filter(document_type=3),
-#                 },
-#                 'new_comment_form': self.new_comment_form,
-#                 'add_user_form': self.add_user_form,
-#                 'upload_file_form': self.upload_file_form,
-#                 'group': get_group(request.user),
-#                 'users': self.case.users.filter(groups__name__in=['pharmacy', 'diagnosis_center']),
-#                 'patient_username': self.case.patient_username,
-#                 'hospitals': self.case.users.filter(groups__name='hospital'),
-#                 'all_user': User.objects.exclude(username=[user.username for user in self.case.users.all()]),
-#             },
-#         )
-#
-#     def post(self, request):
-#         if 'new-comment' in request.POST:
-#             self.new_comment_form = NewCommentForm(data=request.POST, prefix='new-comment')
-#             if self.new_comment_form.is_valid():
-#                 self.new_comment_form.instance.user = request.user
-#                 new_comment = self.new_comment_form.save(commit=False)
-#                 new_comment.case = self.case
-#                 new_comment.save()
-#         elif 'add-user' in request.POST:
-#             self.add_user_form = AddUserForm(data=request.POST, prefix='add-user')
-#             if self.add_user_form.is_valid():
-#                 user_to_add = self.add_user_form.cleaned_data.get('user_name')
-#                 user_obj = User.objects.get(username=user_to_add)
-#                 self.case.users.add(user_obj.pk)
-#         elif 'upload-file' in request.POST:
-#             self.upload_file_form = UploadFileForm(request.POST, request.FILES, prefix='upload-file')
-#             print(self.upload_file_form.errors)
-#             if self.upload_file_form.is_valid():
-#                 self.upload_file_form.instance.user = request.user
-#                 uploaded_file = self.upload_file_form.save(commit=False)
-#                 uploaded_file.case = self.case
-#                 uploaded_file.save()
+class GetAppointments(LoginRequiredMixin, View):
+
+    # get clinical notes for this user
+    def get(self, request, *args, **kwargs):
+        user_id = kwargs['pk']
+        params = {'patient': user_id}
+        end_date = datetime.today()
+        start_date = datetime.today() - timedelta(189)
+        print(get_token())
+        notes = AppointmentEndpoint(get_token()).list(start=start_date, end=end_date, params=params)
+        context_notes = []
+        for note in notes:
+            context_notes.append(note)
+            print(note)
+        data = {
+            'html': render_to_string(template_name='cases/clinical-note-modal.html', context={'notes': context_notes})
+        }
+        return JsonResponse(data)
+
+
+class AddToClinicalNote(LoginRequiredMixin, View):
+
+    # add this comment to clinical note
+    def post(self, request, *args, **kwargs):
+        appointment = request.POST.get('appointment_id')
+        clinical_note_field_text = request.POST.get('clinical_note_field_text')
+        clinical_note_field = clinical_note_field_text
+        comment_id = kwargs.get('pk')
+        value = strip_tags(Comment.objects.get(pk=comment_id).content)
+        # send post request
+        data = {
+            'appointment': appointment,
+            'clinical_note_field': clinical_note_field,
+            'value': value,
+        }
+        print(data)
+        ret = ClinicalNotesField(get_token()).create(data=data)
+        print(ret)
+        data = {'message': ret['value'] == value}
+        return JsonResponse(data)
 
 
 @login_required
@@ -520,18 +554,6 @@ class Dashboard(LoginRequiredMixin, ListView):
             raise PermissionDenied()
 
 
-# @login_required()
-# def approve(request, pk):
-#     if request.user.is_staff:
-#         user = User.objects.get(id=pk)
-#         user.is_active = True
-#         user.save()
-#         data = {'message': f'Approved user {user.username}'}
-#         return JsonResponse(data=data)
-#     else:
-#         raise PermissionDenied()
-
-
 class Approve(LoginRequiredMixin, View):
 
     def post(self, request, *args, **kwargs):
@@ -546,13 +568,6 @@ class Approve(LoginRequiredMixin, View):
             raise PermissionDenied()
 
 
-# @login_required()
-# def delete_comment(request, pk):
-#     Comment.objects.filter(id=pk).delete()
-#     data = {'message': 'Comment deleted'}
-#     return JsonResponse(data=data)
-
-
 class DeleteComment(LoginRequiredMixin, DeleteView):
     model = Comment
 
@@ -560,6 +575,20 @@ class DeleteComment(LoginRequiredMixin, DeleteView):
         self.get_object().delete()
         data = {'message': 'Comment deleted'}
         return JsonResponse(data=data)
+
+
+# class RetrieveAppointments(LoginRequiredMixin, View):
+#
+#     @staticmethod
+#     def post(request=None, *args, **kwargs):
+#         access_token = get_token()
+#         print(access_token)
+#         end_date = datetime.today()
+#         start_date = datetime.today() - timedelta(7)
+#         appointments = ClinicalNotes(access_token=access_token).list(start=start_date, end=end_date, params={'patient': 91623876})
+#         for appointment in appointments:
+#             print(appointment)
+#         print(*appointments)
 
 
 # Error code: 400

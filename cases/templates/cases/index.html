@@ -78,6 +78,8 @@
             $('.modal').modal({
                 dismissible: false
             });
+            $('.fixed-action-btn').floatingActionButton();
+            $('.tooltipped').tooltip();
         });
     </script>
     <script>
@@ -128,15 +130,5 @@
         $(".recent-cases").on("click", ".js-add-to-bookmark", bookmarkCase);
         $("#bookmarked-cases").on("click", ".js-remove-from-bookmark", unbookmarkCase);
     });
-    </script>
-    <script>
-    $(document).ready(function(){
-        $('.tooltipped').tooltip();
-    });
-    </script>
-    <script>
-      $(document).ready(function(){
-        $('.fixed-action-btn').floatingActionButton();
-      });
     </script>
 {% endblock %}

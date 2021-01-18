@@ -4,6 +4,7 @@ from material import Layout, Fieldset, Row
 from simple_search import search_form_factory
 
 from .models import Case, Comment, User, Document
+from .utils import TEXT_TO_ID
 
 
 class NewCaseForm(forms.ModelForm):
@@ -208,3 +209,11 @@ class EditProfileFormMedical(forms.ModelForm):
     class Meta:
         model = User
         fields = ['email', 'first_name', 'mobile_no', 'emergency_mobile', 'address', 'pin_code', 'other_info']
+
+
+class AddToClinicalNoteForm(forms.Form):
+    appointment_id = forms.CharField(required=True, label='Appointment ID')
+    clinical_note_field_text = forms.ChoiceField(
+        choices=((v, k) for k, v in TEXT_TO_ID.items()),
+        required=True, label='Clinical Note Field'
+    )

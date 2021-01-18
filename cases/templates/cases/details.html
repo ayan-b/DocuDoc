@@ -64,6 +64,27 @@
         {% include 'comment/edit_modal.html' %}
         {% include 'comment/delete_modal.html' %}
         {% include 'cases/case_edit_modal.html' %}
+        {% include 'cases/add-to-clinical-note.html' %}
+        {% if group == 2 %}
+            <div id="clinical-notes">
+                <div class="fixed-action-btn">
+                    <a class="btn-floating btn-large waves-effect waves-light red z-depth-2 modal-trigger js-open-clinical-notes" data-url="{% url 'cases:clinical-notes' patient.pk %}">
+                        <i class="large material-icons">note</i>
+                    </a>
+                </div>
+                <div id="clinical-note-modal" class="modal">
+                    <div class="modal-content">
+                        <h3>Appointments</h3>
+                        <div class="center">
+                            Loading...
+                             <div class="progress">
+                                <div class="indeterminate"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
     </div>
 
 {% endblock content %}
@@ -166,7 +187,7 @@
     <script>
     {#Delete comment#}
     $(function() {
-        let commentPk = 0; // TODO
+        let commentPk = 0;
         $('.js-delete-comment').click(function () {
             // get the id
             commentPk = this.id;
@@ -316,5 +337,55 @@
         removeExtraClose();
     });
 
+    </script>
+    <script>
+    $(function () {
+        let clinicalNoteModal = function () {
+            let btn = $(this);
+            $.ajax({
+                url: btn.attr("data-url"),
+                type: 'get',
+                dataType: 'json',
+                beforeSend: function () {
+                    $("#clinical-note-modal").modal("open");
+                },
+                success: function (data) {
+                    console.log(data);
+                    $("#clinical-note-modal .modal-content").html(data.html);
+                }
+            });
+        };
+
+        $("#clinical-notes").on("click", ".js-open-clinical-notes", clinicalNoteModal);
+    });
+    </script>
+    <script type="text/javascript">
+        let commentPkUrl = 0;
+        $('.js-add-clinical-note').click(function () {
+            // get the id
+            commentPkUrl = $(this).attr("data-url");
+        });
+
+        let saveClinicalNote = function () {
+            let form = $(this);
+            console.log(form.attr("action"));
+            $.ajax({
+              url: commentPkUrl,
+              data: form.serialize(),
+              type: form.attr("method"),
+              dataType: 'json',
+              success: function (data) {
+                  $("#add-modal").modal("close");
+                  if (data.message === true) {
+                      M.toast({html: 'Added to clinical note.'});
+                  } else {
+                      M.toast({html: 'Unable to add.'});
+                  }
+              }
+            });
+            return false;
+          };
+
+        $("#add-modal").on("submit", ".js-add-clinical-note-form", saveClinicalNote);
     </script>
 {% endblock %}

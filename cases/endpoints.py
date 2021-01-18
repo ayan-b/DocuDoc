@@ -109,6 +109,8 @@ class BaseEndpoint(object):
                 url = data['next']  # Same as the resource URL, but with the page query parameter present
                 for result in data['results']:
                     yield result
+                if url:
+                    response = requests.get(url, params=params, **kwargs)
         else:
             exe = ERROR_CODES.get(response.status_code, APIException)
             self.logger.debug("list exception {}".format(exe))
@@ -195,6 +197,7 @@ class AppointmentEndpoint(BaseEndpoint):
         """
         List appointments on a given date, or between two dates
         """
+
         # Just parameter parsing & checking
         params = params or {}
         if start and end:
@@ -217,8 +220,32 @@ class DoctorEndpoint(BaseEndpoint):
         raise NotImplementedError("the API does not allow creating doctors")
 
     def delete(self, id, **kwargs):
-        raise NotImplementedError("the API does not allow deleteing doctors")
+        raise NotImplementedError("the API does not allow deleting doctors")
 
 
 class AppointmentProfileEndpoint(BaseEndpoint):
     endpoint = "appointment_profiles"
+
+
+class ClinicalNotes(BaseEndpoint):
+    endpoint = "clinical_notes"
+
+    # Special parameter requirements for a given resource should be explicitly called out
+    def list(self, params=None, date=None, start=None, end=None, **kwargs):
+        """
+        List clinical notes on a given date, or between two dates
+        """
+        # Just parameter parsing & checking
+        params = params or {}
+        if start and end:
+            date_range = "{}/{}".format(start, end)
+            params['date_range'] = date_range
+        elif date:
+            params['date'] = date
+        if 'date' not in params and 'date_range' not in params:
+            raise Exception("Must provide either start & end, or date argument")
+        return super(ClinicalNotes, self).list(params, **kwargs)
+
+
+class ClinicalNotesField(BaseEndpoint):
+    endpoint = 'clinical_note_field_values'

@@ -55,4 +55,8 @@ urlpatterns = [
     # admin-related stuff
     path('dashboard/', view=views.Dashboard.as_view(), name='dashboard'),
     path('dashboard/approve/<int:pk>', view=views.Approve.as_view(), name='approve'),
+
+    # drchrono related
+    path('notes/<int:pk>/', view=views.GetAppointments.as_view(), name='clinical-notes'),
+    path('add-clinical-note/<int:pk>', view=views.AddToClinicalNote.as_view(), name='add-clinical-note'),
 ]

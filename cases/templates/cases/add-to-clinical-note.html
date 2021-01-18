@@ -1,0 +1,34 @@
+{% load material_form %}
+<div class="modal" id="add-modal">
+    <div class="modal-content">
+        <h3>Add to Clinical Note</h3>
+    <!--
+        Appointment ID
+        Clinical Note Field
+    -->
+{#        <div class="row">#}
+{#            <form class="col s12" id="add-to-clinical-note">#}
+{#                <div class="row">#}
+{#                    <div class="input-field col s6">#}
+{#                        <i class="material-icons prefix">watch</i>#}
+{#                        <input id="icon_prefix" type="text" class="validate">#}
+{#                        <label for="icon_prefix">Appointment ID</label>#}
+{#                    </div>#}
+{#                    <div class="input-field col s6">#}
+{#                        <i class="material-icons prefix">event_note</i>#}
+{#                        <input id="icon_telephone" type="tel" class="validate">#}
+{#                        <label for="icon_telephone">Clinical Note Field</label>#}
+{#                    </div>#}
+{#                    <button type="submit">#}
+{#                        submit#}
+{#                    </button>#}
+{#              </div>#}
+{#            </form>#}
+{#          </div>#}
+    <form method="post" class="js-add-clinical-note-form">
+        {% csrf_token %}
+        {% form form=add_to_clinical_note %}{% endform %}
+        <button class="btn" type="submit">submit</button>
+    </form>
+    </div>
+</div>

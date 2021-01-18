@@ -12,17 +12,15 @@
                   <button data-target="edit-modal" class="waves-effect btn-flat modal-trigger js-update-comment right" data-url="{% url 'cases:edit_comment' comment.id %}">
                     <i class="tiny material-icons blue-text">edit</i>
                   </button>
+                  {% if group == 2 %}
+                      <button data-target="add-modal" class="waves-effect btn-flat modal-trigger js-add-clinical-note right" data-url="{% url 'cases:add-clinical-note' comment.id %}">
+                        <i class="tiny material-icons green-text">add</i>
+                      </button>
+                  {% endif %}
               {% endif %}
           </span>
       </div>
       <p>{{ comment.content | safe }}</p>
     </div>
-{#    <div class="card-action">#}
-{#        <button data-target="edit-modal" class="btn modal-trigger js-update-comment" type="button" data-url="{% url 'cases:edit_comment' comment.id %}">Edit</button>#}
-{#        <button class="btn waves-effect" name="delete-comment">#}
-{#        Delete Comment#}
-{#        <i class="material-icons right">delete</i>#}
-{#    </button>#}
-{#    </div>#}
   </div>
 </div>
