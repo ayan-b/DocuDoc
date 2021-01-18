@@ -40,7 +40,7 @@ class IndexView(LoginRequiredMixin, View):
     def check_group(self, request):
         group = get_group(request.user)
         if not group:
-            group_name = 'hospital'
+            group_name = 'doctor'
             group = Group.objects.get(name=group_name)
             request.user.groups.add(group)
 
@@ -135,7 +135,7 @@ class SearchMedical(ListView):
             current_users = User.objects.filter(
                 search_filter(search_fields, query),
                 is_active=True,
-                groups__name__in=['hospital', 'pharmacy', 'diagnosis_center'],
+                groups__name__in=['doctor', 'pharmacy', 'diagnosis_center'],
             )
             if users is None:
                 users = current_users
@@ -227,12 +227,12 @@ def details(request, pk):
             'case': case,
             'patient': User.objects.get(username=case.patient_username),
             'comments': {
-                'hospital': comments.filter(comment_type=1),
+                'doctor': comments.filter(comment_type=1),
                 'prescription': comments.filter(comment_type=2),
                 'diagnosis': comments.filter(comment_type=3),
             },
             'files': {
-                'hospital': documents.filter(document_type=1),
+                'doctor': documents.filter(document_type=1),
                 'prescription': documents.filter(document_type=2),
                 'diagnosis': documents.filter(document_type=3),
             },
@@ -243,7 +243,7 @@ def details(request, pk):
             'group': get_group(request.user),
             'users': case.users.filter(groups__name__in=['pharmacy', 'diagnosis_center']),
             'patient_username': case.patient_username,
-            'hospitals': case.users.filter(groups__name='hospital'),
+            'doctors': case.users.filter(groups__name='doctor'),
             'all_user': User.objects.exclude(username=[user.username for user in case.users.all()]),
         },
     )
@@ -342,7 +342,7 @@ class RemoveUser(LoginRequiredMixin, View):
         else:
             user_to_remove = User.objects.get(username=username)
             if get_group(user_to_remove) == 2:
-                message = 'Cannot remove hospital or patient!'
+                message = 'Cannot remove doctor or patient!'
             else:
                 case.users.remove(user_to_remove)
                 message = f"Removed {username}"
@@ -395,7 +395,7 @@ def save_comment_form(request, form, pk, template_name):
             comments = current_case.comments.all()
             data['comments_list'] = render_to_string('comment/comments.html', {
                 'comments': {
-                    'hospital': comments.filter(comment_type=1),
+                    'doctor': comments.filter(comment_type=1),
                     'prescription': comments.filter(comment_type=2),
                     'diagnosis': comments.filter(comment_type=3),
                 },

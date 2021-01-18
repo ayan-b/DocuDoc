@@ -35,10 +35,10 @@
                     <div id="add-user">
                         {% if group <= 2 %}
                             Users in this case:
-                            <div class="patient-hospital">
+                            <div class="patient-doctor">
                                 <div class="chip">{{ patient_username }}</div>
-                                {% for hospital in hospitals %}
-                                <div class="chip">{{ hospital }}</div>
+                                {% for doctor in doctors %}
+                                <div class="chip">{{ doctor }}</div>
                                 {% endfor %}
                             </div>
                             <div class="users chips chips-autocomplete" id="existing-users">

@@ -4,7 +4,7 @@
       <div class="card-title">
           <span><i class="tiny material-icons">date_range</i> {{ comment.user }} <small>commented {{ comment.created_date | timesince }} ago</small></span>
           <span class="comment-action">
-{#          Only patient, hospital or comment creator can delete or edit#}
+{#          Only patient, doctor or comment creator can delete or edit#}
               {% if group <= 2 or request.user.username == comment.user.username %}
                   <button data-target="delete-modal" class="waves-effect btn-flat modal-trigger js-delete-comment right" id="{{ comment.id }}">
                     <i class="tiny material-icons red-text">delete</i>

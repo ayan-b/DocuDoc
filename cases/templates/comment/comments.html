@@ -5,8 +5,8 @@
             <div class="files card col s12 grey lighten-5">
                 <div class="card-title"><span><h4>Files</h4></span></div>
                 <div class="card-content">
-                {% if files.hospital %}
-                    {% for file in files.hospital %}
+                {% if files.doctor %}
+                    {% for file in files.doctor %}
                         {% include 'cases/file.html' %}
                     {% endfor %}
                 {% else %}
@@ -17,8 +17,8 @@
             <div class="comments-group card col s12 grey lighten-5">
                 <div class="card-title"><span><h4>Comments</h4></span></div>
                 <div class="card-content">
-                {% if comments.hospital %}
-                    {% for comment in comments.hospital %}
+                {% if comments.doctor %}
+                    {% for comment in comments.doctor %}
                         {% include 'comment/comment.html' %}
                     {% endfor %}
                 {% else %}

@@ -58,7 +58,7 @@ class SignUpFormMedical(UserCreationForm):
     email = forms.EmailField(label="Email Address")
     first_name = forms.CharField(required=True, label='Name')
     group_name = forms.ChoiceField(
-        choices=(('hospital', 'Hospital'), ('pharmacy', 'Pharmacy'), ('diagnosis_center', 'Diagnosis Center')),
+        choices=(('doctor', 'Doctor'), ('pharmacy', 'Pharmacy'), ('diagnosis_center', 'Diagnosis Center')),
         required=True,
         label='Sign Up as'
     )
@@ -97,7 +97,7 @@ class SignUpFormMedical(UserCreationForm):
 
 class CreateUserForm(SignUpFormMedical):
     group_name = forms.ChoiceField(
-        choices=(('hospital', 'Hospital'), ('pharmacy', 'Pharmacy'), ('diagnosis_center', 'Diagnosis Center')),
+        choices=(('doctor', 'Doctor'), ('pharmacy', 'Pharmacy'), ('diagnosis_center', 'Diagnosis Center')),
         required=True,
         label='Add this user as'
     )
