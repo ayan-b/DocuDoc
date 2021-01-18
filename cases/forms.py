@@ -105,7 +105,8 @@ class CreateUserForm(SignUpFormMedical):
         widget=forms.TextInput(
             attrs={'placeholder': 'About the institution, add info regarding services it provides etc.'}
         ),
-        required=False
+        required=False,
+        label='About',
     )
     license = forms.FileField(required=False)
 

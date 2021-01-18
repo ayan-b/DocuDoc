@@ -4,7 +4,7 @@ from django.urls import path, include, reverse_lazy
 from django.contrib.auth import views as auth_views
 from django.views.generic import TemplateView
 
-from medidoc import settings
+from docudoc import settings
 
 from . import views
 

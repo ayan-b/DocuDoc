@@ -5,11 +5,9 @@
 {% block content %}
     <div class="container">
         <div class="row">
-            {% if group <= 2 %}
-                <div class="col s12 case-detail" id="case-detail">
-                    {% include 'cases/case_description.html' %}
-                </div>
-            {% endif %}
+            <div class="col s12 case-detail" id="case-detail">
+                {% include 'cases/case_description.html' %}
+            </div>
             {% include 'comment/comments.html' %}
             <h3>Action Area</h3>
             <div class="card col s12 action-area new-comment-add-user">

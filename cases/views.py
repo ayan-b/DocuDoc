@@ -154,7 +154,7 @@ class AllCases(LoginRequiredMixin, ListView):
     context_object_name = 'latest_cases_list'
 
     def get_queryset(self):
-        return Case.objects.filter(users=self.request.user)
+        return Case.objects.filter(users=self.request.user).order_by('-updated_date')
 
 
 class AddCase(LoginRequiredMixin, FormView):
@@ -342,7 +342,7 @@ class RemoveUser(LoginRequiredMixin, View):
         else:
             user_to_remove = User.objects.get(username=username)
             if get_group(user_to_remove) == 2:
-                message = 'Cannot remove hospital!'
+                message = 'Cannot remove hospital or patient!'
             else:
                 case.users.remove(user_to_remove)
                 message = f"Removed {username}"
@@ -575,20 +575,6 @@ class DeleteComment(LoginRequiredMixin, DeleteView):
         self.get_object().delete()
         data = {'message': 'Comment deleted'}
         return JsonResponse(data=data)
-
-
-# class RetrieveAppointments(LoginRequiredMixin, View):
-#
-#     @staticmethod
-#     def post(request=None, *args, **kwargs):
-#         access_token = get_token()
-#         print(access_token)
-#         end_date = datetime.today()
-#         start_date = datetime.today() - timedelta(7)
-#         appointments = ClinicalNotes(access_token=access_token).list(start=start_date, end=end_date, params={'patient': 91623876})
-#         for appointment in appointments:
-#             print(appointment)
-#         print(*appointments)
 
 
 # Error code: 400
