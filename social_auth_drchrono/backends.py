@@ -30,7 +30,7 @@ class drchronoOAuth2(BaseOAuth2):
             'Authorization': 'Bearer %s' % access_token,
         })
         first_user = (response.json())['results'][0]
-        # TODO add to hospitals
+        # TODO add to doctors
         return({
             'username': username,
             'email': first_user['email'],
@@ -79,12 +79,12 @@ class onpatientOAuth2(BaseOAuth2):
         """
         username = response.get('username')
         access_token = response.get('access_token')
-        response = requests.get('https://app.drchrono.com//api/fhir/Patient', headers={
+        response = requests.get('https://app.drchrono.com/api/fhir/Patient', headers={
             'Authorization': 'Bearer %s' % access_token,
         })
         print(response)
         first_user = (response.json())['results']
-        # TODO add to hospitals
+        # TODO add to doctors
         return ({
             'username': username,
             'gender': first_user['gender'],

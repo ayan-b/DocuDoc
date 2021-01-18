@@ -4,6 +4,8 @@
 
 /gitignore/*
 
+SUBMIT.md
+
 # Extra files
 /materializecssform
 /static

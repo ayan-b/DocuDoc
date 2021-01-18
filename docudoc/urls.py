@@ -1,4 +1,4 @@
-"""medidoc URL Configuration
+"""docudoc URL Configuration
 
 The `urlpatterns` list routes URLs to views. For more information please see:
     https://docs.djangoproject.com/en/3.1/topics/http/urls/
@@ -22,7 +22,7 @@ from django.urls.conf import include
 from ckeditor_uploader import views as ckeditor_views
 from django.views.generic import TemplateView
 
-from medidoc import settings
+from docudoc import settings
 
 urlpatterns = [
     path('', include('cases.urls')),
