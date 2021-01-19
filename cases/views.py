@@ -85,7 +85,7 @@ class IndexView(LoginRequiredMixin, View):
                     first_name=patient_info['first_name'],
                     last_name=patient_info['last_name'],
                     email=patient_info.get('email'),
-                    gender=(patient_info['gender'])[0],
+                    gender=(patient_info.get('gender'))[0] if patient_info.get('gender') is not None else None,
                     birthdate=patient_info['date_of_birth'],
                     mobile_no=patient_info['cell_phone'],
                     emergency_mobile=patient_info['home_phone'],
