@@ -1,0 +1,14 @@
+{#A single case#}
+<a href="{% url 'cases:details' case.id %}">
+    <div class="card white darken-1">
+        <div class="card-content black-text">
+            <div class="card-title">
+                {{ case.cases_short_name }}
+                <button name="add-to-bookmark" class="btn btn-flat right js-add-to-bookmark" id="{{ case.id }}">
+                    <i class="material-icons">star_border</i>
+                </button>
+            </div>
+            <p>{{ case.cases_description | safe }}</p>
+        </div>
+    </div>
+</a>

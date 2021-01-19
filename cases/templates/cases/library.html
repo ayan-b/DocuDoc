@@ -2,7 +2,7 @@
 {% load static %}
 {% block title %} My Library | {% endblock %}
 {% block content %}
-    <div id="library" class="library row">
+    <div id="library" class="container library row">
         {% if library %}
             {% for file in library %}
                 {% with file=file.document %}

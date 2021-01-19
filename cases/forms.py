@@ -134,6 +134,20 @@ class AddUserForm(forms.Form):
     user_name = forms.CharField(label='User Name', max_length=250)
 
 
+class AddAdminForm(UserCreationForm):
+    username = forms.CharField()
+    email = forms.EmailField(label="Email Address")
+
+    layout = Layout(
+        'username', 'email',
+        Row('password1', 'password2'),
+    )
+
+    class Meta:
+        model = User
+        fields = ['username', 'email']
+
+
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = User

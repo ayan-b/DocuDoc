@@ -24,7 +24,7 @@ from .endpoints import AppointmentEndpoint, ClinicalNotes, PatientEndpoint, Clin
 from .models import Case, Comment, User, MyLibrary, Document, BookmarkedCase
 from .forms import (
     NewCaseForm, NewCommentForm, CreateUserForm, AddUserForm, SignUpFormPatient, CaseEditForm, UploadFileForm,
-    EditProfileForm, SignUpFormMedical, EditProfileFormMedical, AddToClinicalNoteForm
+    EditProfileForm, SignUpFormMedical, EditProfileFormMedical, AddToClinicalNoteForm, AddAdminForm
 )
 from .decorators import unauthenticated_user
 from .utils import get_group, GROUP_TO_IDX, get_token, get_clinical_note_field
@@ -147,6 +147,27 @@ class SearchMedical(ListView):
         context = super().get_context_data(**kwargs)
         context['search_term'] = self.queries
         return context
+
+
+def search_medical(request):
+    queries = request.GET.get('q')
+    if queries is not None:
+        search_fields = ['username', 'address', 'mobile_no', 'emergency_mobile', 'pin_code', 'other_info']
+        split_queries = queries.split()
+        users = None
+        for query in split_queries:
+            current_users = User.objects.filter(
+                search_filter(search_fields, query),
+                is_active=True,
+                groups__name__in=['doctor', 'pharmacy', 'diagnosis_center'],
+            )
+            if users is None:
+                users = current_users
+            else:
+                users = users.union(current_users)
+        return render(request, 'cases/search-medical.html', {'users': users, 'search_term': queries})
+    else:
+        return render(request, 'cases/search-medical.html')
 
 
 class AllCases(LoginRequiredMixin, ListView):
@@ -577,6 +598,27 @@ class DeleteComment(LoginRequiredMixin, DeleteView):
         data = {'message': 'Comment deleted'}
         return JsonResponse(data=data)
 
+
+def add_admin(request):
+    if not request.user.is_staff:
+        raise PermissionDenied()
+    user_name = ""
+    if request.method == 'POST':
+        form = AddAdminForm(request.POST)
+        print(form.errors)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.is_staff = True
+            user.save()
+            user_name = user.username
+    form = AddAdminForm()
+    return render(
+        request,
+        template_name='dashboard/add-admin.html',
+        context={
+            'form': form,
+            'username': user_name,
+        })
 
 # Error code: 400
 def bad_request(request, exception):

@@ -46,21 +46,9 @@
 {#    Only doctor can create cases#}
     {% if group == 2 %}
     <div class="fixed-action-btn">
-        <a class="btn-floating btn-large waves-effect waves-light red z-depth-2 modal-trigger" href="#">
+        <a class="btn-floating btn-large waves-effect waves-light red tooltipped z-depth-2 modal-trigger" href="#add-cases" data-position="left" data-tooltip="Add a Case">
             <i class="large material-icons">add</i>
         </a>
-        <ul>
-            <li>
-                <a href="#import" class="btn-floating red tooltipped modal-trigger" data-position="left" data-tooltip="Import from DrChrono">
-                    <i class="material-icons">input</i>
-                </a>
-            </li>
-            <li>
-                <a class="btn-floating red modal-trigger tooltipped modal-trigger" data-position="left" data-tooltip="Manually Add" href="#add-cases">
-                    <i class="large material-icons">create</i>
-                </a>
-            </li>
-        </ul>
     </div>
 {% include 'cases/add_case.html' %}
 {% include 'cases/drchrono-import-modal.html' %}

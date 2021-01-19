@@ -9,22 +9,7 @@
         <h2>All Cases</h2>
             {% if latest_cases_list %}
                 {% for case in latest_cases_list %}
-                <div class="card white darken-1">
-                    <div class="card-content black-text">
-                        <span class="card-title">{{ case.cases_short_name }}</span>
-                        <p>{{ case.cases_description | safe | slice:":300"}}</p>
-                    </div>
-                    <div class="card-action">
-                        <form action="{% url 'cases:bookmark_case' case.id %}" method="post">
-                            {% csrf_token %}
-                            <a href="{% url 'cases:details' case.id %}">More</a>
-                            <button name="add-to-bookmark" class="btn-flat waves-effect waves-light js-add-to-bookmark teal-text">
-                                <i class="material-icons"></i>
-                                Bookmark
-                            </button>
-                        </form>
-                    </div>
-                </div>
+                    {% include 'cases/case.html' %}
                 {% endfor %}
             {% else %}
                 <div class="no-active-cases"></div>
