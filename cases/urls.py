@@ -50,7 +50,7 @@ urlpatterns = [
     path('bookmark-case/<int:pk>/', view=views.bookmark_case, name='bookmark_case'),
 
     # profile-related stuff
-    url(r'profile/(?P<username>[a-zA-Z0-9-_.]+)$', view=views.view_profile, name='view_profile'),
+    url(r'profile/(?P<username>[a-zA-Z0-9-_.@]+)$', view=views.view_profile, name='view_profile'),
     path('library/', view=views.ShowLibrary.as_view(), name='library'),
 
     # admin-related stuff

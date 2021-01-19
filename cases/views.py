@@ -69,7 +69,7 @@ class IndexView(LoginRequiredMixin, View):
             patient_username = form.cleaned_data.get('patient_username')
             # this is email
             # if this patient doesn't exist create an account for them
-            if not User.objects.filter(email=patient_username).exists():
+            if not User.objects.filter(username=patient_username).exists():
                 # get the patient info
                 try:
                     validate_email(patient_username)

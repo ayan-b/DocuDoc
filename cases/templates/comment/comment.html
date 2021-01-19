@@ -13,7 +13,7 @@
                     <i class="tiny material-icons blue-text">edit</i>
                   </button>
                   {% if group == 2 %}
-                      <button data-target="add-modal" class="waves-effect btn-flat modal-trigger js-add-clinical-note right" data-url="{% url 'cases:add-clinical-note' comment.id %}">
+                      <button data-target="add-modal" class="waves-effect btn-flat modal-trigger js-add-clinical-note right" data-position="left" data-tooltip="Add to Clinical Note" data-url="{% url 'cases:add-clinical-note' comment.id %}">
                         <i class="tiny material-icons green-text">add</i>
                       </button>
                   {% endif %}
