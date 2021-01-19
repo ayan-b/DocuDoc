@@ -258,13 +258,14 @@ class GetAppointments(LoginRequiredMixin, View):
         end_date = datetime.today()
         start_date = datetime.today() - timedelta(189)
         print(get_token())
-        notes = AppointmentEndpoint(get_token()).list(start=start_date, end=end_date, params=params)
-        context_notes = []
-        for note in notes:
-            context_notes.append(note)
-            print(note)
+        appointments = AppointmentEndpoint(get_token()).list(start=start_date, end=end_date, params=params)
+        context_appointments = []
+        for appointment in appointments:
+            context_appointments.append(appointment)
         data = {
-            'html': render_to_string(template_name='cases/clinical-note-modal.html', context={'notes': context_notes})
+            'html': render_to_string(
+                template_name='cases/appointment-modal.html', context={'appointments': context_appointments}
+            )
         }
         return JsonResponse(data)
 
