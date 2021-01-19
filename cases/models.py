@@ -16,8 +16,8 @@ class User(AbstractUser):
     gender = models.CharField(choices=GENDER_CHOICES, blank=True, max_length=1, null=True)
     # only required for patients
     birthdate = models.DateField(blank=True, null=True)
-    mobile_no = models.CharField(max_length=10, blank=True, null=True)
-    emergency_mobile = models.CharField(max_length=10, blank=True, null=True)
+    mobile_no = models.CharField(max_length=20, blank=True, null=True)
+    emergency_mobile = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True)
     pin_code = models.CharField(blank=True, max_length=6)
     # not required for patients

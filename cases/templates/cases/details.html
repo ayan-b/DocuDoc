@@ -368,18 +368,22 @@
             let form = $(this);
             console.log(form.attr("action"));
             $.ajax({
-              url: commentPkUrl,
-              data: form.serialize(),
-              type: form.attr("method"),
-              dataType: 'json',
-              success: function (data) {
-                  $("#add-modal").modal("close");
-                  if (data.message === true) {
-                      M.toast({html: 'Added to clinical note.'});
-                  } else {
-                      M.toast({html: 'Unable to add.'});
-                  }
-              }
+                url: commentPkUrl,
+                data: form.serialize(),
+                type: form.attr("method"),
+                dataType: 'json',
+                success: function (data) {
+                    $("#add-modal").modal("close");
+                    if (data.message === true) {
+                        M.toast({html: 'Added to clinical note.'});
+                    } else {
+                        M.toast({html: 'Unable to add.'});
+                    }
+                },
+                failure: function (data) {
+                    $("#add-modal").modal("close");
+                    M.toast({html: 'Unable to add.'});
+                }
             });
             return false;
           };
