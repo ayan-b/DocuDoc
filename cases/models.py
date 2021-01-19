@@ -19,7 +19,7 @@ class User(AbstractUser):
     mobile_no = models.CharField(max_length=20, blank=True, null=True)
     emergency_mobile = models.CharField(max_length=20, blank=True, null=True)
     address = models.TextField(blank=True)
-    pin_code = models.CharField(blank=True, max_length=6)
+    pin_code = models.CharField(blank=True, max_length=20)
     # not required for patients
     license = models.FileField(blank=True)
     other_info = models.TextField(blank=True, null=True)
